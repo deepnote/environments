@@ -1,2 +1,5 @@
 #!/bin/bash
-docker build --build-arg PYTHON_VERSION=$PYTHON_VERSION -f $DOCKERFILE_PATH -t $IMAGE_NAME .
+cat "../python-versions.txt" | while read PYTHON_VERSION
+do
+    docker build --build-arg PYTHON_VERSION=$PYTHON_VERSION -t $DOCKER_REPO:$PYTHON_VERSION .
+done
