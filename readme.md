@@ -8,7 +8,7 @@
 
 #### How to build 
 ```
-docker build -t deepnote/python:<TAG>  --build-arg R_BASE_VERSION=<some_version> ./ir
+docker build -t deepnote/python:<TAG>  --build-arg PYTHON_VERSION=<some_version> ./python
 ```
 
 ### R image
@@ -17,5 +17,5 @@ docker build -t deepnote/python:<TAG>  --build-arg R_BASE_VERSION=<some_version>
 
 #### How to build 
 ```
-docker build -t deepnote/python:<TAG>  --build-arg PYTHON_VERSION=<some_version> ./python
+docker build -t deepnote/ir:<TAG>  --build-arg R_BASE_VERSION=<some_version> ./ir
 ```
