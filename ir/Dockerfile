@@ -4,7 +4,7 @@ FROM deepnote/python:3.7
 RUN echo "deb http://http.debian.net/debian sid main" > /etc/apt/sources.list.d/debian-unstable.list \
         && echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/90local-no-recommends
 
-ARG R_BASE_VERSION=4.0.3
+ARG R_BASE_VERSION=4.0.4
 ## Now install R and littler, and create a link for littler in /usr/local/bin
 RUN apt-get update \
         && apt-get install -t unstable -y --no-install-recommends \

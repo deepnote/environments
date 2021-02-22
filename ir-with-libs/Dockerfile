@@ -1,4 +1,4 @@
-FROM deepnote/ir:4.0.3
+FROM deepnote/ir:4.0.4
 
 # Dependencies needed for R libraries
 RUN apt-get update \
