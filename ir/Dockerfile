@@ -30,6 +30,5 @@ RUN pip install notebook
 RUN sudo R -e "install.packages('IRkernel', repos='http://cran.rstudio.com/')"
 RUN R -e "IRkernel::installspec()"
 
-ENV R_LIBS_USER "~/work/.R/library"
 # Set default kernel to R
 ENV DEFAULT_KERNEL_NAME "ir"
