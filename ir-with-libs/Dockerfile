@@ -7,4 +7,4 @@ RUN apt-get update \
    libudunits2-dev libgdal-dev libgeos-dev libproj-dev
 
 # Install the R libraries
-RUN R -e "install.packages(c('tidyverse', 'data.table', 'RSQLite', 'remotes', 'reticulate', 'igraph', 'plotly'), lib='/usr/local/lib/R/site-library', dependencies = T)"
+RUN R -e "install.packages(c('tidyverse', 'data.table', 'RSQLite', 'remotes', 'reticulate', 'igraph', 'plotly'), dependencies = T)"
