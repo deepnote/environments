@@ -8,3 +8,9 @@ RUN apt-get update \
 
 # Install the R libraries
 RUN R -e "install.packages(c('tidyverse', 'data.table', 'RSQLite', 'remotes', 'reticulate', 'igraph', 'plotly'), dependencies = T)"
+
+# Workaround for Java to install correctly
+RUN mkdir -p /usr/share/man/man1/
+RUN apt-get update && apt-get install -y libglu1-mesa-dev mesa-common-dev libhdf5-dev libv8-dev libmagick++-dev libharfbuzz-dev libfribidi-dev r-cran-rjava default-jdk
+RUN R CMD javareconf
+RUN R -e "install.packages(c('rgl', 'hdf5r', 'rJava'), dependencies = T)"

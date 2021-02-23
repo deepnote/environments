@@ -6,6 +6,9 @@ This image is based on `deepnote/ir` and installs the following libraries:
 - remotes 
 - reticulate 
 - igraph 
-- plotly
+- plotly 
+- rgl 
+- hdf5r 
+- rJava
 
 See the [Dockerfile](https://github.com/deepnote/environments/blob/main/ir-with-libs/Dockerfile).
