@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.4.1-gpu
+FROM tensorflow/tensorflow:2.5.0-gpu
 
 RUN apt-get update \
   && apt-get install -yq --no-install-recommends \
