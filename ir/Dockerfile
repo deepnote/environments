@@ -1,14 +1,15 @@
-FROM deepnote/python:3.7
+# TODO: Using debian:sid as the base does not provide very good reproducibility of the build
+FROM debian:sid
 
-## Use Debian unstable via pinning -- new style via APT::Default-Release
-RUN echo "deb http://http.debian.net/debian sid main" > /etc/apt/sources.list.d/debian-unstable.list \
-        && echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/90local-no-recommends
+RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/90local-no-recommends
+RUN apt update && apt -y install sudo python-is-python3 python3-pip && rm -rf /var/lib/apt/lists/*
 
-ARG R_BASE_VERSION=4.0.4
+ARG R_BASE_VERSION=4.2.0
+
 ## Now install R and littler, and create a link for littler in /usr/local/bin
 RUN apt-get update \
-        && apt-get install -t unstable -y --no-install-recommends \
-        gcc-8-base \
+        && apt-get install -y --no-install-recommends \
+        gcc \
         libopenblas0-pthread \
 		littler \
         r-cran-littler \
