@@ -11,7 +11,7 @@ docker build -t deepnote/python:<TAG>  --build-arg PYTHON_VERSION=<some_version>
 ```
 
 ## R image
-* [`3.5.2`, `4.0.4`](https://github.com/deepnote/environments/blob/main/ir/Dockerfile)
+* [`3.5.2`, `4.0.4`, `4.2.0`](https://github.com/deepnote/environments/blob/main/ir/Dockerfile)
 
 ## GPU image
 The image is based on tensorflow docker image and adds packages that are typical part of our other images (`git` most importantly).
