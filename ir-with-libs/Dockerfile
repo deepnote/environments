@@ -1,4 +1,5 @@
-FROM deepnote/ir:4.0.4
+ARG R_IMAGE_TAG=4.2.0
+FROM deepnote/ir:${R_IMAGE_TAG}
 
 # Dependencies needed for R libraries
 RUN apt-get update \
