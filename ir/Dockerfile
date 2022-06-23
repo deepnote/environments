@@ -2,7 +2,7 @@
 FROM debian:sid
 
 RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/90local-no-recommends
-RUN apt update && apt -y install sudo python-is-python3 python3-pip && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt -y install sudo git python-is-python3 python3-pip && rm -rf /var/lib/apt/lists/*
 
 ARG R_BASE_VERSION=4.2.0
 
