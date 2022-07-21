@@ -1,5 +1,6 @@
 ARG PYTHON_VERSION=3.7
-FROM python:${PYTHON_VERSION}-slim-buster
+ARG DEBIAN_VERSION=buster
+FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION}
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install OS dependencies
