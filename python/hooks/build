@@ -1,6 +1,7 @@
 #!/bin/bash
 cat "python-versions.txt" | while read PYTHON_VERSION
 do
-    docker build --build-arg PYTHON_VERSION=$PYTHON_VERSION -t $DOCKER_REPO:${PYTHON_VERSION} .
-    docker build --build-arg PYTHON_VERSION=$PYTHON_VERSION --build-arg DEBIAN_VERSION=bullseye -t $DOCKER_REPO:${PYTHON_VERSION}-bullseye .
+    docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t ${DOCKER_REPO}:${PYTHON_VERSION} .
+    docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg DEBIAN_VERSION=bullseye -t $DOCKER_REPO:${PYTHON_VERSION}-bullseye .
+    docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t ${DOCKER_REPO}:${PYTHON_VERSION}-conda . --file Dockerfile.conda
 done

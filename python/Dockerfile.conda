@@ -1,0 +1,17 @@
+ARG PYTHON_VERSION=3.7
+FROM deepnote/python:${PYTHON_VERSION}-bullseye
+
+RUN MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"; \
+    wget --quiet $MINICONDA_URL -O /tmp/miniconda.sh && \
+    /bin/bash /tmp/miniconda.sh -b -p /opt/conda && \
+    rm /tmp/miniconda.sh && \
+    /opt/conda/bin/conda clean --all --yes
+
+ENV PATH /opt/conda/bin:$PATH
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        tini  \
+        libglib2.0-0 libxext6 libsm6 libxrender1 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
