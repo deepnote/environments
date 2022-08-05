@@ -1,5 +1,7 @@
-ARG PYTHON_VERSION=3.7
-FROM deepnote/python:${PYTHON_VERSION}-bullseye
+ARG FROM_PYTHON_VERSION=3.7
+FROM deepnote/python:${FROM_PYTHON_VERSION}-bullseye
+# This is necessary to allow use of the value later in the Dockerfile.
+ARG FROM_PYTHON_VERSION
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -18,4 +20,4 @@ ENV PATH=/opt/conda/bin:$PATH
 
 ENV CONDA_ALWAYS_YES=true
 
-ENV PIP_TARGET=/opt/conda/lib/python${PYTHON_VERSION}/site-packages
+ENV PIP_TARGET=/opt/conda/lib/python${FROM_PYTHON_VERSION}/site-packages
