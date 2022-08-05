@@ -21,3 +21,7 @@ ENV PATH=/opt/conda/bin:$PATH
 ENV CONDA_ALWAYS_YES=true
 
 ENV PIP_TARGET=/opt/conda/lib/python${FROM_PYTHON_VERSION}/site-packages
+
+# Remove the system wide .profile file, because it overwrites the $PATH variable
+# and therefore the /opt/conda/bin directory is not in the $PATH.
+RUN rm /etc/profile
