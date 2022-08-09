@@ -7,7 +7,7 @@
 
 ### How to build 
 ```
-docker build -t deepnote/python:<TAG>  --build-arg PYTHON_VERSION=<some_version> ./python
+docker build -t deepnote/python:<TAG>  --build-arg FROM_PYTHON_VERSION=<some_version> ./python
 ```
 
 ## R image
