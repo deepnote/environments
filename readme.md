@@ -13,12 +13,15 @@ docker build -t deepnote/python:<TAG>  --build-arg FROM_PYTHON_VERSION=<some_ver
 ## R image
 * [`3.5.2`, `4.0.4`, `4.2.0`](https://github.com/deepnote/environments/blob/main/ir/Dockerfile)
 
-## GPU image
-The image is based on tensorflow docker image and adds packages that are typical part of our other images (`git` most importantly).
-
-We follow the tagging of `tensorflow` image. So `tensorflow/tensorflow:2.4.1-gpu` becomes `deepnote/tensorflow:2.4.1-gpu`.
+We also have a variant with number of preinstalled libraries. We build it for all the above mentioned R versions 
+and the image is available under `deepnote/ir-with-libs`. See [ir-with-libs](./ir-with-libs/) for more details.
 
 ### How to build 
 ```
 docker build -t deepnote/ir:<TAG>  --build-arg R_BASE_VERSION=<some_version> ./ir
 ```
+
+## GPU image
+The image is based on tensorflow docker image and adds packages that are typical part of our other images (`git` most importantly).
+
+We follow the tagging of `tensorflow` image. So `tensorflow/tensorflow:2.4.1-gpu` becomes `deepnote/tensorflow:2.4.1-gpu`.
