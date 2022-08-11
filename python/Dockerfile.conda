@@ -23,7 +23,7 @@ RUN MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x
     rm /tmp/miniconda.sh && \
     # Install the correct version of python (as the time of
     # writing, anaconda installed python 3.9 by default)
-    /opt/conda/bin/conda install python=${PYTHON_VERSION} && \
+    /opt/conda/bin/conda install python=${FROM_PYTHON_VERSION} && \
     /opt/conda/bin/conda clean --all
 
 ENV PATH=/opt/conda/bin:$PATH
