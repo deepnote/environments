@@ -1,0 +1,6 @@
+deepnote/python:3.7
+deepnote/python:3.8
+deepnote/python:3.9
+deepnote/python:3.10
+deepnote/mounter:0.2.9
+deepnote/nb-executor-queue-consumer:v22
