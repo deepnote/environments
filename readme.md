@@ -16,7 +16,7 @@ The Dockerfile for this is at [./python/Dockerfile.conda](./python/Dockerfile.co
 
 ### How to build
 ```
-docker build --build-arg FROM_PYTHON_VERSION=<some_version> -t deepnote/python:<some_version>-conda ./python --file .python/Dockerfile.conda
+docker build --build-arg FROM_PYTHON_VERSION=<some_version> -t deepnote/python:<some_version>-conda ./python --file ./python/Dockerfile.conda
 ```
 
 ## R image
