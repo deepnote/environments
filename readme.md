@@ -12,7 +12,7 @@ docker build -t deepnote/python:<TAG>  --build-arg FROM_PYTHON_VERSION=<some_ver
 
 ## Conda images
 For every Python version (see above), we also build a `-conda` variant, which includes [Miniconda](https://docs.conda.io/en/latest/miniconda.html) installation.
-The Dockerfile for this is at [./python/Dockerfile-conda](https://github.com/deepnote/environments/blob/main/python/Dockerfile-conda).
+The Dockerfile for this is at [./python/Dockerfile.conda](./python/Dockerfile.conda).
 
 ### How to build
 ```
