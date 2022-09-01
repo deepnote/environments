@@ -5,3 +5,5 @@ RUN apt-get update \
   && apt-get install -yq --no-install-recommends \
   git sudo \
   && rm -rf /var/lib/apt/lists/*
+
+ENV DEEPNOTE_PYTHON_KERNEL_ONLY=true
