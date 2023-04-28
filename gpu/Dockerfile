@@ -20,4 +20,8 @@ RUN apt-get update && apt-get -yq dist-upgrade \
   gnupg2 \ 
   && rm -rf /var/lib/apt/lists/*
 
+# We create the virtual environment in the home directory in the Dockerfile
+# for performance improvement.
+RUN python -m venv --system-site-packages ~/venv
+
 ENV DEEPNOTE_PYTHON_KERNEL_ONLY=true
