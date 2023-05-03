@@ -36,4 +36,7 @@ The image is based on tensorflow docker image and adds packages that are typical
 We follow the tagging of `tensorflow` image. So `tensorflow/tensorflow:2.4.1-gpu` becomes `deepnote/tensorflow:2.4.1-gpu`.
 
 ## Continuous integration
-Some images are built automatically using the Docker Hub build. See [Docker Hub Builds](https://hub.docker.com/repository/docker/deepnote/python/builds) for more details.
+Images are build and pushed to DockerHub using CircleCI pipeline.
+Not all images are covered by the continuous integration -- check the [config](./.circleci/config.yml) for more details.
+
+Pull requests are pushed too, but with `-ra-PR_NUMBER` suffix in the tag.
