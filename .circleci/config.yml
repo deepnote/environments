@@ -1,0 +1,66 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@2.2.0
+
+jobs:
+  build-and-push-python:
+    executor: docker/docker
+    parameters:
+      python-version:
+        type: string
+    environment:
+      PYTHON_VERSION: << parameters.python-version >>
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check:
+          use-docker-credentials-store: true
+      - docker/build:
+          step-name: Base Python image
+          path: ./python
+          extra_build_args: "--build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION}"
+          image: deepnote/python 
+          tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      - docker/push:
+          image: deepnote/python
+          tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      - docker/build:
+          step-name: Bullseye version
+          path: ./python
+          extra_build_args: "--build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION} --build-arg DEBIAN_VERSION=bullseye"
+          image: deepnote/python 
+          tag: ${PYTHON_VERSION}-bullseye${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      - docker/push:
+          image: deepnote/python 
+          tag: ${PYTHON_VERSION}-bullseye${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      # Conda build is currently failing on Python 3.7
+      - unless:
+          condition: << parameters.python-version >> == "3.7"
+          steps:
+            - docker/build:
+                step-name: Conda
+                path: ./python
+                extra_build_args: "--build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION} --build-arg FROM_TAG_SUFFIX=${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+                image: deepnote/python
+                dockerfile: Dockerfile.conda
+                tag: ${PYTHON_VERSION}-conda${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+            - docker/push:
+                image: deepnote/python
+                tag: ${PYTHON_VERSION}-conda${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+
+workflows:
+  build:
+    jobs:
+      - build-and-push-python:
+          name: Python 3.7
+          python-version: "3.7"
+      - build-and-push-python:
+          name: Python 3.8
+          python-version: "3.8"
+      - build-and-push-python:
+          name: Python 3.9
+          python-version: "3.9"
+      - build-and-push-python:
+          name: Python 3.10
+          python-version: "3.10"
