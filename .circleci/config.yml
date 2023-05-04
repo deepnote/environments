@@ -25,29 +25,6 @@ jobs:
       - docker/push:
           image: deepnote/python
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
-      - docker/build:
-          step-name: Bullseye version
-          path: ./python
-          extra_build_args: "--build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION} --build-arg DEBIAN_VERSION=bullseye"
-          image: deepnote/python 
-          tag: ${PYTHON_VERSION}-bullseye${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
-      - docker/push:
-          image: deepnote/python 
-          tag: ${PYTHON_VERSION}-bullseye${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
-      # Conda build is currently failing on Python 3.7
-      - unless:
-          condition: << parameters.python-version >> == "3.7"
-          steps:
-            - docker/build:
-                step-name: Conda
-                path: ./python
-                extra_build_args: "--build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION} --build-arg FROM_TAG_SUFFIX=${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
-                image: deepnote/python
-                dockerfile: Dockerfile.conda
-                tag: ${PYTHON_VERSION}-conda${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
-            - docker/push:
-                image: deepnote/python
-                tag: ${PYTHON_VERSION}-conda${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
 workflows:
   build:

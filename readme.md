@@ -15,9 +15,18 @@ For every Python version (see above), we also build a `-conda` variant, which in
 The Dockerfile for this is at [./python/Dockerfile.conda](./python/Dockerfile.conda).
 
 ### How to build
+The Conda image is built on top of the `-buster` version of our Python image. We don't currently build it in the CI, so you need to build it locally.
+```
+docker build --build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION} --build-arg DEBIAN_VERSION=bullseye -t deepnote/python:${PYTHON_VERSION}-bullseye ./python
+```
+
 ```
 docker build --build-arg FROM_PYTHON_VERSION=<some_version> -t deepnote/python:<some_version>-conda ./python --file ./python/Dockerfile.conda
 ```
+
+Before pushing and overwritting the tag currently in use in production, please make sure that the image works as expected with our compute dependencies. We've seen case when the image worked locally (you could run `conda`), but it failed in the Deepnote environment with all compute dependencies installed (the `conda` command failed there).
+
+You can do this by tagging the image with `-test` suffix and running it in Deepnote as custom environment.
 
 ## R image
 * [`3.5.2`, `4.0.4`, `4.2.0`](https://github.com/deepnote/environments/blob/main/ir/Dockerfile)
