@@ -15,7 +15,7 @@ For every Python version (see above), we also build a `-conda` variant, which in
 The Dockerfile for this is at [./python/Dockerfile.conda](./python/Dockerfile.conda).
 
 ### How to build
-The Conda image is built on top of the `-buster` version of our Python image. We don't currently build it in the CI, so you need to build it locally.
+The Conda image is built on top of the `-bullseye` version of our Python image. We don't currently build it in the CI, so you need to build it locally.
 ```
 docker build --build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION} --build-arg DEBIAN_VERSION=bullseye -t deepnote/python:${PYTHON_VERSION}-bullseye ./python
 ```
