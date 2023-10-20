@@ -19,7 +19,7 @@ RUN apt-get update && apt-get -yq dist-upgrade \
   vim \
   wget \
   ssh \
-  gnupg2 \ 
+  gnupg2 \
   && rm -rf /var/lib/apt/lists/*
 
 # We create the virtual environment in the home directory in the Dockerfile
