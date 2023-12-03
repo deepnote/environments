@@ -25,6 +25,27 @@ jobs:
       - docker/push:
           image: deepnote/python
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+  build-and-push-gpu:
+    executor: docker/docker
+    parameters:
+      tf-version:
+        type: string
+    environment:
+      TF_VERSION: << parameters.tf-version >>
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check:
+          use-docker-credentials-store: true
+      - docker/build:
+          step-name: Tensorflow GPU image
+          path: ./gpu
+          extra_build_args: "--build-arg TENSORFLOW_IMAGE_TAG=${TF_VERSION}"
+          image: deepnote/tensorflow 
+          tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      - docker/push:
+          image: deepnote/tensorflow
+          tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
 workflows:
   build:
@@ -44,3 +65,6 @@ workflows:
       - build-and-push-python:
           name: Python 3.11
           python-version: "3.11"
+      - build-and-push-gpu:
+          name: Tensorflow 2.15
+          tf-version: "2.15.0"
