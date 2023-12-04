@@ -66,5 +66,8 @@ workflows:
           name: Python 3.11
           python-version: "3.11"
       - build-and-push-gpu:
+          name: Tensorflow 2.9
+          tf-version: "2.9.1"
+      - build-and-push-gpu:
           name: Tensorflow 2.15
           tf-version: "2.15.0"
