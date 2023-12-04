@@ -5,6 +5,7 @@ FROM tensorflow/tensorflow:${TENSORFLOW_IMAGE_TAG}
 RUN apt-get update && apt-get -yq dist-upgrade \
   && apt-get install -yq --no-install-recommends \
   build-essential \
+  python3-venv \
   bzip2 \
   cmake \
   curl \
