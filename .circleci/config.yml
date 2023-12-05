@@ -42,10 +42,10 @@ jobs:
           path: ./gpu
           extra_build_args: "--build-arg TENSORFLOW_IMAGE_TAG=${TF_VERSION}"
           image: deepnote/tensorflow 
-          tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+          tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
       - docker/push:
           image: deepnote/tensorflow
-          tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+          tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
 
 workflows:
   build:
