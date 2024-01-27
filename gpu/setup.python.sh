@@ -17,7 +17,8 @@ if [ ! -z "$1" ] && [ ! $CURR_PYTHON_VER == "$1" ];then
     pip freeze | grep tensorflow >> /tmp/requirements.txt
 
     # install new python version
-    add-apt-repository ppa:deadsnakes/ppa
+    apt-get -y install software-properties-common
+    add-apt-repository -y ppa:deadsnakes/ppa
     apt-get -y install python3.10 python3.10-distutils python$PYTHON_VER-venv
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python$CURR_PYTHON_VER 1
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python$PYTHON_VER 2

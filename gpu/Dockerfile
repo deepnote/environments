@@ -1,15 +1,11 @@
 ARG TENSORFLOW_IMAGE_TAG=2.11.1-gpu
 FROM tensorflow/tensorflow:${TENSORFLOW_IMAGE_TAG}
 
-# replace python version (optional)
-ARG PYTHON_VER
-ADD setup.python.sh /tmp/setup.python.sh
-RUN bash /tmp/setup.python.sh $PYTHON_VER; echo ok; rm -v /tmp/setup.python.sh
-
 # Install OS dependencies
 RUN apt-get update \
   && apt-get install -yq --no-install-recommends \
   build-essential \
+  python3-venv \
   bzip2 \
   cmake \
   curl \ 
@@ -27,6 +23,11 @@ RUN apt-get update \
   
 # We need to remove some pre-installed pip packages that end up clashing with our compute-deps
 RUN pip uninstall -y cryptography
+
+# replace python version (optional)
+ARG PYTHON_VER
+ADD ./gpu/setup.python.sh /tmp/setup.python.sh
+RUN bash /tmp/setup.python.sh $PYTHON_VER; rm -v /tmp/setup.python.sh
 
 # We create the virtual environment in the home directory in the Dockerfile
 # for performance improvement.
