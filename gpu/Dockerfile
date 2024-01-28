@@ -24,13 +24,13 @@ RUN apt-get update \
 # We need to remove some pre-installed pip packages that end up clashing with our compute-deps
 RUN pip uninstall -y cryptography
 
+# We create the virtual environment in the home directory in the Dockerfile
+# for performance improvement.
+RUN python -m venv --system-site-packages ~/venv
+
 # replace python version (optional)
 ARG PYTHON_VER
 ADD ./gpu/setup.python.sh /tmp/setup.python.sh
 RUN bash /tmp/setup.python.sh $PYTHON_VER; rm -v /tmp/setup.python.sh
-
-# We create the virtual environment in the home directory in the Dockerfile
-# for performance improvement.
-RUN python -m venv --system-site-packages ~/venv
 
 ENV DEEPNOTE_PYTHON_KERNEL_ONLY=true

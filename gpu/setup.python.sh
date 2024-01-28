@@ -26,4 +26,12 @@ if [ ! -z "$1" ] && [ ! $CURR_PYTHON_VER == "$1" ];then
 
     # reinstall tensorflow packages
     pip install -r /tmp/requirements.txt; rm -v /tmp/requirements.txt
+
+    # create the virtual environment in the home directory in the Dockerfile
+    # using our upgraded python version
+    python"$PYTHON_VER" -m venv --system-site-packages ~/venv
+
+else 
+    # create the virtual environment in the home directory in the Dockerfile
+    python -m venv --system-site-packages ~/venv
 fi
