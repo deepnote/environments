@@ -25,6 +25,9 @@ apt-get -y install python$PYTHON_VER python$PYTHON_VER-distutils python$PYTHON_V
 update-alternatives --install /usr/bin/python3 python3 /usr/bin/python$PYTHON_VER 2
 curl -sS https://bootstrap.pypa.io/get-pip.py | python$PYTHON_VER
 
+# symlink python3 to python, as downstream services expect "python" to exist as executable next to python3
+ln -s /usr/bin/python3 /usr/bin/python
+
 # We need to remove some pre-installed pip packages that end up clashing with our compute-deps
 pip uninstall -y cryptography
 
