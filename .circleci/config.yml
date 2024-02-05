@@ -28,10 +28,16 @@ jobs:
   build-and-push-gpu:
     executor: docker/docker
     parameters:
+      cuda-tag:
+        type: string
       tf-version:
         type: string
+      python-version:
+        type: string
     environment:
+      CUDA_TAG: << parameters.cuda-tag >>
       TF_VERSION: << parameters.tf-version >>
+      PY_VERSION: << parameters.python-version >>
     steps:
       - checkout
       - setup_remote_docker
@@ -40,7 +46,7 @@ jobs:
       - docker/build:
           step-name: Tensorflow GPU image
           path: ./gpu
-          extra_build_args: "--build-arg TENSORFLOW_IMAGE_TAG=${TF_VERSION}"
+          extra_build_args: "--build-arg CUDA_IMAGE_TAG=${CUDA_TAG} --build-arg TF_VERSION=${TF_VERSION} --build-arg PYTHON_VER=${PY_VERSION}"
           image: deepnote/tensorflow 
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
       - docker/push:
@@ -67,7 +73,16 @@ workflows:
           python-version: "3.11"
       - build-and-push-gpu:
           name: Tensorflow 2.9
+          cuda-tag: "11.4.3-runtime-ubuntu20.04"
           tf-version: "2.9.1"
+          python-version: "3.8"
+      - build-and-push-gpu:
+          name: Tensorflow 2.11
+          cuda-tag: "11.4.3-runtime-ubuntu20.04"
+          tf-version: "2.11.1"
+          python-version: "3.10"
       - build-and-push-gpu:
           name: Tensorflow 2.15
+          cuda-tag: "12.2.2-runtime-ubuntu22.04"
           tf-version: "2.15.0"
+          python-version: "3.11"
