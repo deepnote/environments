@@ -1,0 +1,21 @@
+ARG FROM_PYTHON_VERSION=3.7
+FROM deepnote/python:${FROM_PYTHON_VERSION}
+
+RUN pip install --upgrade pip
+
+
+# Add the requirements files
+ADD requirements-3.11+.txt /requirements-3.11+.txt
+ADD requirements-below-3.11.txt /requirements-below-3.11.txt
+
+#Determine the Python version and set the version-specifications file
+ARG FROM_PYTHON_VERSION
+RUN if [ "$(printf '%s\n' "$FROM_PYTHON_VERSION" "3.11" | sort -V | head -n1)" = "3.11" ]; then \
+  pip install -r requirements-3.11+.txt \
+  ; else \
+  pip install -r requirements-below-3.11.txt  \
+  ; fi
+
+
+# Clean up the requirements files from the image
+RUN rm /requirements-3.11+.txt /requirements-below-3.11.txt
