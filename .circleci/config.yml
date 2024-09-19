@@ -41,6 +41,7 @@ jobs:
       - docker/build:
           step-name: Datascience Python image
           path: ./python/datascience
+          docker-context: ./python/datascience
           dockerfile: Dockerfile.datascience
           extra_build_args: "--build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION}"
           image: deepnote/python-datascience
