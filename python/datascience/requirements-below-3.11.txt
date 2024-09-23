@@ -1,0 +1,19 @@
+# Datacience libraries for pythons < 3.11
+scipy==1.9.*
+matplotlib==3.6.*
+scikit-learn==1.1.*
+agate==1.6.*
+keras==2.10.*
+nltk==3.7.*
+spacy==3.4.*
+seaborn==0.13.*
+scrapy==2.7.*
+jsonify==0.5
+datascience==0.17.* 
+textblob==0.17.*
+tabulate==0.9.*
+sympy==1.11.*
+squarify==0.4.*
+tensorflow==2.10.*
+torch==1.12.*
+torchvision==0.13.*
