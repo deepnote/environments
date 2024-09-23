@@ -18,13 +18,38 @@ jobs:
           use-docker-credentials-store: true
       - docker/build:
           step-name: Base Python image
-          path: ./python
+          path: ./python/base
+          dockerfile: Dockerfile
           extra_build_args: "--build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION}"
-          image: deepnote/python 
+          image: deepnote/python
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
       - docker/push:
           image: deepnote/python
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+  build-and-push-python-datascience:
+    executor: docker/docker
+    parameters:
+      python-version:
+        type: string
+    environment:
+      PYTHON_VERSION: << parameters.python-version >>
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check:
+          use-docker-credentials-store: true
+      - docker/build:
+          step-name: Datascience Python image
+          path: ./python/datascience
+          docker-context: ./python/datascience
+          dockerfile: Dockerfile.datascience
+          extra_build_args: "--build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION}"
+          image: deepnote/python-datascience
+          tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      - docker/push:
+          image: deepnote/python-datascience
+          tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+
   build-and-push-gpu:
     executor: docker/docker
     parameters:
@@ -47,7 +72,7 @@ jobs:
           step-name: Tensorflow GPU image
           path: ./gpu
           extra_build_args: "--build-arg CUDA_IMAGE_TAG=${CUDA_TAG} --build-arg TF_VERSION=${TF_VERSION} --build-arg PYTHON_VER=${PY_VERSION}"
-          image: deepnote/tensorflow 
+          image: deepnote/tensorflow
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
       - docker/push:
           image: deepnote/tensorflow
@@ -56,9 +81,6 @@ jobs:
 workflows:
   build:
     jobs:
-      - build-and-push-python:
-          name: Python 3.7
-          python-version: "3.7"
       - build-and-push-python:
           name: Python 3.8
           python-version: "3.8"
@@ -71,6 +93,20 @@ workflows:
       - build-and-push-python:
           name: Python 3.11
           python-version: "3.11"
+
+      - build-and-push-python-datascience:
+          name: Python Datascience 3.8
+          python-version: "3.8"
+      - build-and-push-python-datascience:
+          name: Python Datascience 3.9
+          python-version: "3.9"
+      - build-and-push-python-datascience:
+          name: Python Datascience 3.10
+          python-version: "3.10"
+      - build-and-push-python-datascience:
+          name: Python Datascience 3.11
+          python-version: "3.11"
+
       - build-and-push-gpu:
           name: Tensorflow 2.9
           cuda-tag: "11.4.3-runtime-ubuntu20.04"
