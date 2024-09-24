@@ -30,6 +30,7 @@ ln -s /usr/bin/python3 /usr/bin/python
 
 # We need to remove some pre-installed pip packages that end up clashing with our compute-deps
 pip uninstall -y cryptography
+pip install numpy==1.23.4
 
 # install tensorflow
 pip install tensorflow==$TF_VERSION
