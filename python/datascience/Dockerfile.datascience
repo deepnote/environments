@@ -11,9 +11,9 @@ ADD requirements-below-3.11.txt /requirements-below-3.11.txt
 #Determine the Python version and set the version-specifications file
 ARG FROM_PYTHON_VERSION
 RUN if [ "$(printf '%s\n' "$FROM_PYTHON_VERSION" "3.11" | sort -V | head -n1)" = "3.11" ]; then \
-  pip install -r requirements-3.11+.txt \
+  pip install -r requirements-3.11+.txt -c https://deepnote-staging-runtime-artifactory.s3.amazonaws.com/deepnote-toolkit/0f35f8a/constraints.txt\
   ; else \
-  pip install -r requirements-below-3.11.txt  \
+  pip install -r requirements-below-3.11.txt  -c https://deepnote-staging-runtime-artifactory.s3.amazonaws.com/deepnote-toolkit/0f35f8a/constraints.txt\
   ; fi
 
 
