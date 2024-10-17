@@ -3,7 +3,7 @@ scipy==1.9.*
 matplotlib==3.6.*
 scikit-learn==1.1.*
 agate==1.6.*
-keras==2.10.*
+keras==2.*
 nltk==3.7.*
 spacy==3.4.*
 seaborn==0.13.*
