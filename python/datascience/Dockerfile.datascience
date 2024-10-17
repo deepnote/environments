@@ -1,4 +1,4 @@
-ARG FROM_PYTHON_VERSION=3.7
+ARG FROM_PYTHON_VERSION=3.8
 FROM deepnote/python:${FROM_PYTHON_VERSION}
 
 RUN pip install --upgrade pip
