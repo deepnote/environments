@@ -11,6 +11,9 @@ ADD constraints.txt /constraints.txt
 
 #Determine the Python version and set the version-specifications file
 ARG FROM_PYTHON_VERSION
+
+RUN python -m pip install --upgrade setuptools pip
+
 RUN if [ "$(printf '%s\n' "$FROM_PYTHON_VERSION" "3.11" | sort -V | head -n1)" = "3.11" ]; then \
   pip install -r requirements-3.11+.txt -c constraints.txt\
   ; else \
