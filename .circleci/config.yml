@@ -5,7 +5,9 @@ orbs:
 
 jobs:
   build-and-push-python:
-    executor: docker/docker
+    machine:
+      image: ubuntu-2204:current
+      docker_layer_caching: true
     parameters:
       python-version:
         type: string
@@ -13,7 +15,6 @@ jobs:
       PYTHON_VERSION: << parameters.python-version >>
     steps:
       - checkout
-      - setup_remote_docker
       - docker/check:
           use-docker-credentials-store: true
       - docker/build:
@@ -30,7 +31,9 @@ jobs:
           image: deepnote/python
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
   build-and-push-python-datascience:
-    executor: docker/docker
+    machine:
+      image: ubuntu-2204:current
+      docker_layer_caching: true
     parameters:
       python-version:
         type: string
@@ -38,7 +41,6 @@ jobs:
       PYTHON_VERSION: << parameters.python-version >>
     steps:
       - checkout
-      - setup_remote_docker
       - docker/check:
           use-docker-credentials-store: true
       - docker/build:
@@ -56,7 +58,9 @@ jobs:
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
   build-and-push-gpu:
-    executor: docker/docker
+    machine:
+      image: ubuntu-2204:current
+      docker_layer_caching: true
     parameters:
       cuda-tag:
         type: string
@@ -70,7 +74,6 @@ jobs:
       PY_VERSION: << parameters.python-version >>
     steps:
       - checkout
-      - setup_remote_docker
       - docker/check:
           use-docker-credentials-store: true
       - docker/build:
