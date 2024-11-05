@@ -3,6 +3,13 @@ version: 2.1
 orbs:
   docker: circleci/docker@2.8.0
 
+commands:
+  setup-buildkit-builder:
+    steps:
+      - run:
+          name: Setup BuildKit builder
+          command: |
+            docker buildx create --name custom-builder --use
 jobs:
   build-and-push-python:
     machine:
@@ -15,6 +22,7 @@ jobs:
       PYTHON_VERSION: << parameters.python-version >>
     steps:
       - checkout
+      - setup-buildkit-builder
       - docker/check:
           use-docker-credentials-store: true
       - docker/build:
@@ -30,6 +38,7 @@ jobs:
           use-buildkit: true
           image: deepnote/python
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+
   build-and-push-python-datascience:
     machine:
       image: ubuntu-2204:current
@@ -41,6 +50,7 @@ jobs:
       PYTHON_VERSION: << parameters.python-version >>
     steps:
       - checkout
+      - setup-buildkit-builder
       - docker/check:
           use-docker-credentials-store: true
       - docker/build:
@@ -74,6 +84,7 @@ jobs:
       PY_VERSION: << parameters.python-version >>
     steps:
       - checkout
+      - setup-buildkit-builder
       - docker/check:
           use-docker-credentials-store: true
       - docker/build:
