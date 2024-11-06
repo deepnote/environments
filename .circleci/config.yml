@@ -9,7 +9,11 @@ commands:
       - run:
           name: Setup BuildKit builder
           command: |
-            docker buildx create --name custom-builder --use
+            docker buildx create \
+            --name zstd-builder \
+            --use \
+            --driver docker-container \
+            --driver-opt image=moby/buildkit:v0.17.0
 jobs:
   build-and-push-python:
     machine:
