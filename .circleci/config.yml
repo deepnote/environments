@@ -36,6 +36,7 @@ jobs:
           extra_build_args: >-
             --build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION}
             --output='type=image,push=true,compression=zstd,force-compression=true,oci-mediatypes=true'
+            --platform linux/amd64
             --progress plain
           use-buildkit: true
           image: deepnote/python
@@ -63,6 +64,7 @@ jobs:
           extra_build_args: >-
             --build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION}
             --output='type=image,push=true,compression=zstd,force-compression=true,oci-mediatypes=true'
+            --platform linux/amd64
             --progress plain
           image: deepnote/python-datascience
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
@@ -95,6 +97,7 @@ jobs:
             --build-arg TF_VERSION=${TF_VERSION}
             --build-arg PYTHON_VER=${PY_VERSION}
             --output='type=image,push=true,compression=zstd,force-compression=true,oci-mediatypes=true'
+            --platform linux/amd64
             --progress plain
           image: deepnote/tensorflow
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
