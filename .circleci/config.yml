@@ -35,9 +35,7 @@ jobs:
           dockerfile: Dockerfile
           extra_build_args: >-
             --build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION}
-            --output='type=registry,compression=zstd,force-compression=true,oci-mediatype=true'
-            --provenance=false
-            --sbom=false
+            --output='type=image,push=true,compression=zstd,force-compression=true,oci-mediatypes=true'
             --progress plain
           use-buildkit: true
           image: deepnote/python
@@ -64,9 +62,7 @@ jobs:
           dockerfile: Dockerfile.datascience
           extra_build_args: >-
             --build-arg FROM_PYTHON_VERSION=${PYTHON_VERSION}
-            --output='type=registry,compression=zstd,force-compression=true,oci-mediatype=true'
-            --provenance=false
-            --sbom=false
+            --output='type=image,push=true,compression=zstd,force-compression=true,oci-mediatypes=true'
             --progress plain
           image: deepnote/python-datascience
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
@@ -98,9 +94,7 @@ jobs:
             --build-arg CUDA_IMAGE_TAG=${CUDA_TAG}
             --build-arg TF_VERSION=${TF_VERSION}
             --build-arg PYTHON_VER=${PY_VERSION}
-            --output='type=registry,compression=zstd,force-compression=true,oci-mediatype=true'
-            --provenance=false
-            --sbom=false
+            --output='type=image,push=true,compression=zstd,force-compression=true,oci-mediatypes=true'
             --progress plain
           image: deepnote/tensorflow
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
