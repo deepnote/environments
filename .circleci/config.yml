@@ -36,6 +36,7 @@ jobs:
           dockerfile: Dockerfile.base
           extra_build_args: |
             --progress plain
+            --platform linux/amd64
             --cache-from type=registry,ref=deepnote/python:base-buildcache,mode=max
             --cache-to type=registry,ref=deepnote/python:base-buildcache,mode=max
             --output type=registry,push=true
@@ -64,6 +65,7 @@ jobs:
             --build-arg PYTHON_VERSION=${PYTHON_VERSION}
             --build-arg PYTHON_VERSION_PATCH=${PYTHON_VERSION_PATCH}
             --progress plain
+            --platform linux/amd64
             --cache-from type=registry,ref=deepnote/python:${PYTHON_VERSION}-buildcache,mode=max
             --cache-to type=registry,ref=deepnote/python:${PYTHON_VERSION}-buildcache,mode=max
             --output type=registry,push=true
@@ -92,6 +94,7 @@ jobs:
             --build-arg PYTHON_VERSION=${PYTHON_VERSION}
             --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST}
             --progress plain
+            --platform linux/amd64
             --cache-from type=registry,ref=deepnote/python:${PYTHON_VERSION}-buildcache,mode=max
             --cache-from type=registry,ref=deepnote/python-datascience:${PYTHON_VERSION}-buildcache,mode=max
             --cache-to type=registry,ref=deepnote/python-datascience:${PYTHON_VERSION}-buildcache,mode=max
