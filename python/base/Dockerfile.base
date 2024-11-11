@@ -18,6 +18,7 @@ vim \
 wget \
 ssh \
 gnupg2 \
+ca-certificates \
 && apt-get clean \
 && rm -rf /var/lib/apt/lists/*
 
