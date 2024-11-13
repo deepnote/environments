@@ -58,7 +58,6 @@ jobs:
       OCI_IMAGE_REPOSITORY: deepnote/python
     steps:
       - checkout
-      - setup_remote_docker
       - setup_buildkit_builder
       - docker/check:
           use-docker-credentials-store: true
@@ -169,7 +168,6 @@ jobs:
       OCI_IMAGE_REPOSITORY: public.ecr.aws/deepnote/tensorflow
     steps:
       - checkout
-      - setup_remote_docker
       - docker/check:
           use-docker-credentials-store: true
       - split_python_version
