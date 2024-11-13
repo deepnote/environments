@@ -51,7 +51,11 @@ commands:
 
 jobs:
   build-and-push-base:
-    executor: docker/docker
+    machine:
+      image: ubuntu-2404:current
+    environment:
+      OCI_IMAGE_REGISTRY: public.ecr.aws
+      OCI_IMAGE_REPOSITORY: deepnote/python
     steps:
       - checkout
       - setup_remote_docker
@@ -65,10 +69,11 @@ jobs:
           extra_build_args: |
             --progress plain
             --platform linux/amd64
-            --cache-from type=registry,ref=deepnote/python:base-buildcache,mode=max
-            --cache-to type=registry,ref=deepnote/python:base-buildcache,mode=max
+            --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:base-buildcache,mode=max
+            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:base-buildcache,mode=max
             --output type=registry,push=true
-          image: deepnote/python
+          registry: ${OCI_IMAGE_REGISTRY}
+          image: ${OCI_IMAGE_REPOSITORY}
           tag: base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
   build-and-push-python:
     machine:
@@ -102,9 +107,8 @@ jobs:
             --build-arg PYTHON_VERSION_PATCH=${PYTHON_VERSION_PATCH}
             --progress plain
             --platform linux/amd64
-            --cache-from type=registry,ref=deepnote/python:${PYTHON_VERSION}-buildcache,mode=max
-            --cache-from type=registry,ref=${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
-            --cache-to type=registry,ref=${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
+            --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
+            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
             --output type=registry,push=true
           registry: ${OCI_IMAGE_REGISTRY}
           image: ${OCI_IMAGE_REPOSITORY}
@@ -137,9 +141,8 @@ jobs:
             --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST}
             --progress plain
             --platform linux/amd64
-            --cache-from type=registry,ref=deepnote/python:${PYTHON_VERSION}-buildcache,mode=max
-            --cache-from type=registry,ref=${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
-            --cache-to type=registry,ref=${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
+            --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
+            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
             --output type=registry,push=true
           registry: ${OCI_IMAGE_REGISTRY}
           image: ${OCI_IMAGE_REPOSITORY}
@@ -162,6 +165,7 @@ jobs:
       CUDA_TAG: << parameters.cuda-tag >>
       TF_VERSION: << parameters.tf-version >>
       PY_VERSION: << parameters.python-version >>
+      OCI_IMAGE_REGISTRY: public.ecr.aws
       OCI_IMAGE_REPOSITORY: public.ecr.aws/deepnote/tensorflow
     steps:
       - checkout
@@ -173,12 +177,15 @@ jobs:
           step-name: Tensorflow GPU image
           path: ./gpu
           extra_build_args: "--build-arg CUDA_IMAGE_TAG=${CUDA_TAG} --build-arg TF_VERSION=${TF_VERSION} --build-arg PYTHON_VER=${PY_VERSION} --progress plain"
+          registry: ${OCI_IMAGE_REGISTRY}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
       - docker/push:
+          registry: ${OCI_IMAGE_REGISTRY}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
       - push_soci_index:
+          registry: ${OCI_IMAGE_REGISTRY}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
 
