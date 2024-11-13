@@ -22,7 +22,7 @@ commands:
               --name custom-builder \
               --use \
               --driver docker-container \
-  setup_production_aws_profile:
+  ecr_login:
     steps:
       - aws-cli/setup:
           role_arn: arn:aws:iam::978928340082:role/CircleCI
@@ -33,6 +33,11 @@ commands:
           name: Set AWS Default Region to us-east-1
           command: |
             echo 'export AWS_REGION=us-east-1' >> "$BASH_ENV"
+      - run:
+          name: ECR login
+          command: |
+            aws ecr-public get-login-password --region us-east-1 --profile production | \
+              docker login --username AWS --password-stdin public.ecr.aws/deepnote
   push_soci_index:
     parameters:
       registry:
@@ -58,7 +63,7 @@ jobs:
       OCI_IMAGE_REPOSITORY: deepnote/python
     steps:
       - checkout
-      - setup_production_aws_profile
+      - ecr_login
       - setup_buildkit_builder
       - docker/build:
           step-name: Base python image (debian + apt-get deps)
@@ -85,14 +90,10 @@ jobs:
       OCI_IMAGE_REPOSITORY: deepnote/python
     steps:
       - checkout
-      - setup_production_aws_profile
+      - ecr_login
       - split_python_version
       - setup_buildkit_builder
-      - run:
-          name: ECR login
-          command: |
-            aws ecr-public get-login-password --region us-east-1 --profile production | \
-              docker login --username AWS --password-stdin public.ecr.aws/deepnote
+
       - docker/build:
           step-name: Python image
           path: ./python/base
@@ -125,7 +126,7 @@ jobs:
       OCI_IMAGE_REPOSITORY: deepnote/python-datascience
     steps:
       - checkout
-      - setup_production_aws_profile
+      - ecr_login
       - split_python_version
       - setup_buildkit_builder
       - docker/build:
@@ -166,7 +167,7 @@ jobs:
       OCI_IMAGE_REPOSITORY: public.ecr.aws/deepnote/tensorflow
     steps:
       - checkout
-      - setup_production_aws_profile
+      - ecr_login
       - split_python_version
       - docker/build:
           step-name: Tensorflow GPU image
