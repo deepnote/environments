@@ -58,9 +58,8 @@ jobs:
       OCI_IMAGE_REPOSITORY: deepnote/python
     steps:
       - checkout
+      - setup_production_aws_profile
       - setup_buildkit_builder
-      - docker/check:
-          use-docker-credentials-store: true
       - docker/build:
           step-name: Base python image (debian + apt-get deps)
           path: ./python/base
@@ -87,8 +86,6 @@ jobs:
     steps:
       - checkout
       - setup_production_aws_profile
-      - docker/check:
-          use-docker-credentials-store: true
       - split_python_version
       - setup_buildkit_builder
       - run:
@@ -128,6 +125,7 @@ jobs:
       OCI_IMAGE_REPOSITORY: deepnote/python-datascience
     steps:
       - checkout
+      - setup_production_aws_profile
       - split_python_version
       - setup_buildkit_builder
       - docker/build:
@@ -168,8 +166,7 @@ jobs:
       OCI_IMAGE_REPOSITORY: public.ecr.aws/deepnote/tensorflow
     steps:
       - checkout
-      - docker/check:
-          use-docker-credentials-store: true
+      - setup_production_aws_profile
       - split_python_version
       - docker/build:
           step-name: Tensorflow GPU image
