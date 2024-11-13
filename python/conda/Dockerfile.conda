@@ -1,6 +1,6 @@
 ARG FROM_PYTHON_VERSION=3.7
 ARG FROM_TAG_SUFFIX=""
-FROM deepnote/python:${FROM_PYTHON_VERSION}-bullseye${FROM_TAG_SUFFIX}
+FROM public.ecr.aws/deepnote/python:${FROM_PYTHON_VERSION}-bullseye${FROM_TAG_SUFFIX}
 # This is necessary to allow use of the value later in the Dockerfile.
 ARG FROM_PYTHON_VERSION
 
