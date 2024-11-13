@@ -73,7 +73,7 @@ jobs:
             --progress plain
             --platform linux/amd64
             --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:base-buildcache,mode=max
-            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:base-buildcache,mode=max
+            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:base-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
             --output type=registry,push=true
           registry: ${OCI_IMAGE_REGISTRY}
           image: ${OCI_IMAGE_REPOSITORY}
@@ -105,7 +105,7 @@ jobs:
             --progress plain
             --platform linux/amd64
             --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
-            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
+            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
             --output type=registry,push=true
           registry: ${OCI_IMAGE_REGISTRY}
           image: ${OCI_IMAGE_REPOSITORY}
@@ -140,7 +140,7 @@ jobs:
             --progress plain
             --platform linux/amd64
             --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
-            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
+            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
             --output type=registry,push=true
           registry: ${OCI_IMAGE_REGISTRY}
           image: ${OCI_IMAGE_REPOSITORY}
