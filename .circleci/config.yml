@@ -72,6 +72,8 @@ jobs:
           extra_build_args: |
             --progress plain
             --platform linux/amd64
+            --provenance=false
+            --sbom=false
             --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:base-buildcache,mode=max
             --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:base-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
             --output type=registry,push=true
@@ -104,6 +106,8 @@ jobs:
             --build-arg PYTHON_VERSION_PATCH=${PYTHON_VERSION_PATCH}
             --progress plain
             --platform linux/amd64
+            --provenance=false
+            --sbom=false
             --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
             --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
             --output type=registry,push=true
@@ -139,6 +143,8 @@ jobs:
             --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST}
             --progress plain
             --platform linux/amd64
+            --provenance=false
+            --sbom=false
             --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
             --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
             --output type=registry,push=true
