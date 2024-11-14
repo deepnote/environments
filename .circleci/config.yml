@@ -36,15 +36,15 @@ commands:
       - run:
           name: ECR login
           command: |
-            aws ecr-public get-login-password --region us-east-1 --profile production | \
-              docker login --username AWS --password-stdin public.ecr.aws/deepnote
+            aws ecr get-login-password --region us-east-1 --profile production | \
+              docker login --username AWS --password-stdin 978928340082.dkr.ecr.us-east-1.amazonaws.com
 
 jobs:
   build-and-push-base:
     machine:
       image: ubuntu-2404:current
     environment:
-      OCI_IMAGE_REGISTRY: public.ecr.aws
+      OCI_IMAGE_REGISTRY: 978928340082.dkr.ecr.us-east-1.amazonaws.com
       OCI_IMAGE_REPOSITORY: deepnote/python
     steps:
       - checkout
@@ -73,7 +73,7 @@ jobs:
         type: string
     environment:
       PYTHON_VERSION_PATCH: << parameters.python-version >>
-      OCI_IMAGE_REGISTRY: public.ecr.aws
+      OCI_IMAGE_REGISTRY: 978928340082.dkr.ecr.us-east-1.amazonaws.com
       OCI_IMAGE_REPOSITORY: deepnote/python
     steps:
       - checkout
@@ -107,7 +107,7 @@ jobs:
         type: string
     environment:
       PYTHON_VERSION_PATCH: << parameters.python-version >>
-      OCI_IMAGE_REGISTRY: public.ecr.aws
+      OCI_IMAGE_REGISTRY: 978928340082.dkr.ecr.us-east-1.amazonaws.com
       OCI_IMAGE_REPOSITORY: deepnote/python-datascience
     steps:
       - checkout
@@ -147,8 +147,8 @@ jobs:
       CUDA_TAG: << parameters.cuda-tag >>
       TF_VERSION: << parameters.tf-version >>
       PY_VERSION: << parameters.python-version >>
-      OCI_IMAGE_REGISTRY: public.ecr.aws
-      OCI_IMAGE_REPOSITORY: public.ecr.aws/deepnote/tensorflow
+      OCI_IMAGE_REGISTRY: 978928340082.dkr.ecr.us-east-1.amazonaws.com
+      OCI_IMAGE_REPOSITORY: deepnote/tensorflow
     steps:
       - checkout
       - ecr_login
