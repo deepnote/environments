@@ -38,21 +38,6 @@ commands:
           command: |
             aws ecr-public get-login-password --region us-east-1 --profile production | \
               docker login --username AWS --password-stdin public.ecr.aws/deepnote
-  push_soci_index:
-    parameters:
-      registry:
-        type: string
-      image:
-        type: string
-      tag:
-        type: string
-    steps:
-      - run:
-          name: Push SOCI index
-          command: |
-            LATEST_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`
-            curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz
-            ./standalone-soci-indexer << parameters.registry >>/<< parameters.image >>:<< parameters.tag >>
 
 jobs:
   build-and-push-base:
@@ -114,10 +99,6 @@ jobs:
           registry: ${OCI_IMAGE_REGISTRY}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
-      - push_soci_index:
-          registry: ${OCI_IMAGE_REGISTRY}
-          image: ${OCI_IMAGE_REPOSITORY}
-          tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
   build-and-push-python-datascience:
     machine:
       image: ubuntu-2404:current
@@ -151,10 +132,7 @@ jobs:
           registry: ${OCI_IMAGE_REGISTRY}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
-      - push_soci_index:
-          registry: ${OCI_IMAGE_REGISTRY}
-          image: ${OCI_IMAGE_REPOSITORY}
-          tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+
   build-and-push-gpu:
     machine:
       image: ubuntu-2404:current
@@ -183,10 +161,6 @@ jobs:
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
       - docker/push:
-          registry: ${OCI_IMAGE_REGISTRY}
-          image: ${OCI_IMAGE_REPOSITORY}
-          tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
-      - push_soci_index:
           registry: ${OCI_IMAGE_REGISTRY}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
