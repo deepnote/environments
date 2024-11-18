@@ -1,5 +1,6 @@
-ARG FROM_PYTHON_VERSION=3.8
-FROM deepnote/python:${FROM_PYTHON_VERSION}
+ARG PYTHON_VERSION=3.8
+ARG CIRCLE_PULL_REQUEST
+FROM deepnote/python:${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
 RUN pip install --upgrade pip
 
@@ -10,11 +11,11 @@ ADD requirements-below-3.11.txt /requirements-below-3.11.txt
 ADD constraints.txt /constraints.txt
 
 #Determine the Python version and set the version-specifications file
-ARG FROM_PYTHON_VERSION
+ARG PYTHON_VERSION
 
 RUN python -m pip install --upgrade setuptools pip
 
-RUN if [ "$(printf '%s\n' "$FROM_PYTHON_VERSION" "3.11" | sort -V | head -n1)" = "3.11" ]; then \
+RUN if [ "$(printf '%s\n' "$PYTHON_VERSION" "3.11" | sort -V | head -n1)" = "3.11" ]; then \
   mv "requirements-3.11+.txt" "requirements.txt" \
   ; else \
   mv "requirements-below-3.11.txt" "requirements.txt" \
