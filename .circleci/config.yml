@@ -130,6 +130,12 @@ jobs:
           image: deepnote/tensorflow
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
 
+python-versions: &python-versions
+  - "3.8.19"
+  - "3.9.19"
+  - "3.10.15"
+  - "3.11.10"
+
 workflows:
   build:
     jobs:
@@ -139,22 +145,14 @@ workflows:
           name: Python << matrix.python-version >>
           matrix:
             parameters:
-              python-version:
-                - "3.8.19"
-                - "3.9.19"
-                - "3.10.15"
-                - "3.11.10"
+              python-version: *python-versions
           requires:
             - Building the base image
       - build-and-push-python-datascience:
           name: Python Datascience << matrix.python-version >>
           matrix:
             parameters:
-              python-version:
-                - "3.8.19"
-                - "3.9.19"
-                - "3.10.15"
-                - "3.11.10"
+              python-version: *python-versions
           requires:
             - Python << matrix.python-version >>
 
