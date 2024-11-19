@@ -22,7 +22,7 @@ commands:
               --name custom-builder \
               --use \
               --driver docker-container \
-  docker_login:
+  ecr_login:
     steps:
       - aws-cli/setup:
           role_arn: arn:aws:iam::978928340082:role/CircleCI
@@ -38,9 +38,6 @@ commands:
           command: |
             aws ecr get-login-password --region us-east-1 --profile production | \
               docker login --username AWS --password-stdin 978928340082.dkr.ecr.us-east-1.amazonaws.com
-
-      - docker/check:
-          use-docker-credentials-store: true
 jobs:
   build-and-push-base:
     machine:
@@ -50,7 +47,7 @@ jobs:
       OCI_IMAGE_REPOSITORY: deepnote/python
     steps:
       - checkout
-      - docker_login
+      - ecr_login
       - setup_buildkit_builder
       - docker/build:
           step-name: Base python image (debian + apt-get deps)
@@ -80,7 +77,7 @@ jobs:
       OCI_IMAGE_REPOSITORY: deepnote/python
     steps:
       - checkout
-      - docker_login
+      - ecr_login
       - split_python_version
       - setup_buildkit_builder
       - docker/build:
@@ -101,6 +98,8 @@ jobs:
           registry: ${ECR_URI}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      - docker/check:
+          use-docker-credentials-store: true
       - run:
           name: Push to Docker Hub
           command: |
@@ -123,7 +122,7 @@ jobs:
       OCI_IMAGE_REPOSITORY: deepnote/python-datascience
     steps:
       - checkout
-      - docker_login
+      - ecr_login
       - split_python_version
       - setup_buildkit_builder
       - docker/build:
@@ -144,6 +143,8 @@ jobs:
           registry: ${ECR_URI}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      - docker/check:
+          use-docker-credentials-store: true
       - run:
           name: Push to Docker Hub
           command: |
@@ -171,7 +172,7 @@ jobs:
       OCI_IMAGE_REPOSITORY: deepnote/tensorflow
     steps:
       - checkout
-      - docker_login
+      - ecr_login
       - split_python_version
       - docker/build:
           step-name: Tensorflow GPU image
@@ -184,6 +185,8 @@ jobs:
           registry: ${ECR_URI}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
+      - docker/check:
+          use-docker-credentials-store: true
       - run:
           name: Push to Docker Hub
           command: |
