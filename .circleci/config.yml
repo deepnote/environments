@@ -22,7 +22,7 @@ commands:
               --name custom-builder \
               --use \
               --driver docker-container \
-  ecr_login:
+  docker_login:
     steps:
       - aws-cli/setup:
           role_arn: arn:aws:iam::978928340082:role/CircleCI
@@ -39,16 +39,18 @@ commands:
             aws ecr get-login-password --region us-east-1 --profile production | \
               docker login --username AWS --password-stdin 978928340082.dkr.ecr.us-east-1.amazonaws.com
 
+      - docker/check:
+          use-docker-credentials-store: true
 jobs:
   build-and-push-base:
     machine:
       image: ubuntu-2404:current
     environment:
-      OCI_IMAGE_REGISTRY: 978928340082.dkr.ecr.us-east-1.amazonaws.com
+      ECR_URI: 978928340082.dkr.ecr.us-east-1.amazonaws.com
       OCI_IMAGE_REPOSITORY: deepnote/python
     steps:
       - checkout
-      - ecr_login
+      - docker_login
       - setup_buildkit_builder
       - docker/build:
           step-name: Base python image (debian + apt-get deps)
@@ -59,10 +61,10 @@ jobs:
             --platform linux/amd64
             --provenance=false
             --sbom=false
-            --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:base-buildcache,mode=max
-            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:base-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
+            --cache-from type=registry,ref=${ECR_URI}/${OCI_IMAGE_REPOSITORY}:base-buildcache,mode=max
+            --cache-to type=registry,ref=${ECR_URI}/${OCI_IMAGE_REPOSITORY}:base-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
             --output type=registry,push=true
-          registry: ${OCI_IMAGE_REGISTRY}
+          registry: ${ECR_URI}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
   build-and-push-python:
@@ -73,14 +75,14 @@ jobs:
         type: string
     environment:
       PYTHON_VERSION_PATCH: << parameters.python-version >>
-      OCI_IMAGE_REGISTRY: 978928340082.dkr.ecr.us-east-1.amazonaws.com
+      ECR_URI: 978928340082.dkr.ecr.us-east-1.amazonaws.com
+      DOCKERHUB_URI: docker.io
       OCI_IMAGE_REPOSITORY: deepnote/python
     steps:
       - checkout
-      - ecr_login
+      - docker_login
       - split_python_version
       - setup_buildkit_builder
-
       - docker/build:
           step-name: Python image
           path: ./python/base
@@ -93,12 +95,21 @@ jobs:
             --platform linux/amd64
             --provenance=false
             --sbom=false
-            --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
-            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
+            --cache-from type=registry,ref=${ECR_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
+            --cache-to type=registry,ref=${ECR_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
             --output type=registry,push=true
-          registry: ${OCI_IMAGE_REGISTRY}
+          registry: ${ECR_URI}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      - run:
+          name: Push to Docker Hub
+          command: |
+            # only if CIRCLE_PULL_REQUEST is not set
+            if [ -z "${CIRCLE_PULL_REQUEST}" ]; then
+              docker tag ${ECR_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION} ${DOCKERHUB_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}
+              docker push ${DOCKERHUB_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}
+            fi
+
   build-and-push-python-datascience:
     machine:
       image: ubuntu-2404:current
@@ -107,11 +118,12 @@ jobs:
         type: string
     environment:
       PYTHON_VERSION_PATCH: << parameters.python-version >>
-      OCI_IMAGE_REGISTRY: 978928340082.dkr.ecr.us-east-1.amazonaws.com
+      ECR_URI: 978928340082.dkr.ecr.us-east-1.amazonaws.com
+      DOCKERHUB_URI: docker.io
       OCI_IMAGE_REPOSITORY: deepnote/python-datascience
     steps:
       - checkout
-      - ecr_login
+      - docker_login
       - split_python_version
       - setup_buildkit_builder
       - docker/build:
@@ -126,13 +138,20 @@ jobs:
             --platform linux/amd64
             --provenance=false
             --sbom=false
-            --cache-from type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
-            --cache-to type=registry,ref=${OCI_IMAGE_REGISTRY}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
+            --cache-from type=registry,ref=${ECR_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max
+            --cache-to type=registry,ref=${ECR_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true
             --output type=registry,push=true
-          registry: ${OCI_IMAGE_REGISTRY}
+          registry: ${ECR_URI}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
-
+      - run:
+          name: Push to Docker Hub
+          command: |
+            # only if CIRCLE_PULL_REQUEST is not set
+            if [ -z "${CIRCLE_PULL_REQUEST}" ]; then
+              docker tag ${ECR_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION} ${DOCKERHUB_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}
+              docker push ${DOCKERHUB_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}
+            fi
   build-and-push-gpu:
     machine:
       image: ubuntu-2404:current
@@ -147,23 +166,32 @@ jobs:
       CUDA_TAG: << parameters.cuda-tag >>
       TF_VERSION: << parameters.tf-version >>
       PY_VERSION: << parameters.python-version >>
-      OCI_IMAGE_REGISTRY: 978928340082.dkr.ecr.us-east-1.amazonaws.com
+      ECR_URI: 978928340082.dkr.ecr.us-east-1.amazonaws.com
+      DOCKERHUB_URI: docker.io
       OCI_IMAGE_REPOSITORY: deepnote/tensorflow
     steps:
       - checkout
-      - ecr_login
+      - docker_login
       - split_python_version
       - docker/build:
           step-name: Tensorflow GPU image
           path: ./gpu
           extra_build_args: "--build-arg CUDA_IMAGE_TAG=${CUDA_TAG} --build-arg TF_VERSION=${TF_VERSION} --build-arg PYTHON_VER=${PY_VERSION} --progress plain"
-          registry: ${OCI_IMAGE_REGISTRY}
+          registry: ${ECR_URI}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
       - docker/push:
-          registry: ${OCI_IMAGE_REGISTRY}
+          registry: ${ECR_URI}
           image: ${OCI_IMAGE_REPOSITORY}
           tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
+      - run:
+          name: Push to Docker Hub
+          command: |
+            # only if CIRCLE_PULL_REQUEST is not set
+            if [ -z "${CIRCLE_PULL_REQUEST}" ]; then
+              docker tag ${ECR_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION} ${DOCKERHUB_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}
+              docker push ${DOCKERHUB_URI}/${OCI_IMAGE_REPOSITORY}:${PYTHON_VERSION}
+            fi
 
 python-versions: &python-versions
   - "3.8.19"
