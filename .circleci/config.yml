@@ -4,7 +4,6 @@ orbs:
   aws-cli: circleci/aws-cli@5.1.1
   docker: circleci/docker@2.8
 
-
 commands:
   split_python_version:
     steps:
@@ -169,6 +168,37 @@ jobs:
               --output type=registry,push=true \
               .
 
+  build-and-push-ir:
+    executor: docker/docker
+    parameters:
+      r-version:
+        type: string
+    environment:
+      R_VERSION: << parameters.r-version >>
+    steps:
+      - checkout
+      - docker_login
+      - split_python_version # This provides PYTHON_VERSION
+      - setup_buildkit_builder
+      - run:
+          name: Build and push python-conda image
+          command: |
+            REPOSITORY="deepnote/ir"
+            TAG="${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+            docker buildx build \
+              --file=./ir/Dockerfile.ir \
+              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG} \
+              --tag=docker.io/${REPOSITORY}:${TAG} \
+              --build-arg R_VERSION=${R_VERSION} \
+              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max \
+              --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
+              --progress plain \
+              --platform linux/amd64 \
+              --provenance=false \
+              --sbom=false \
+              --output type=registry,push=true \
+              ./ir
+
   build-and-push-gpu:
     machine:
       image: ubuntu-2404:current
@@ -216,6 +246,11 @@ python-versions: &python-versions
   - "3.10.15"
   - "3.11.10"
 
+r-versions: &r-versions
+  - "3.5.2"
+  - "4.0.4"
+  - "4.2.0"
+
 workflows:
   build:
     jobs:
@@ -242,6 +277,11 @@ workflows:
               python-version: *python-versions
           requires:
             - Building the base image
+      - build-and-push-ir:
+          name: R << matrix.r-version >>
+          matrix:
+            parameters:
+              r-version: *r-versions
 
       - build-and-push-gpu:
           name: Tensorflow 2.9
