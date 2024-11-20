@@ -1,5 +1,5 @@
 ARG CIRCLE_PULL_REQUEST
-FROM debian:bullseye-slim AS builder
+FROM debian:bullseye-20241111-slim AS builder
 
 # Install dependencies for building Python
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -34,7 +34,7 @@ RUN wget -qO- "https://www.python.org/ftp/python/${PYTHON_VERSION_PATCH}/Python-
     && make altinstall
 
 
-FROM 978928340082.dkr.ecr.us-east-1.amazonaws.com/deepnote/python:base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+FROM deepnote/python:base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 # Copy Python from the builder stage
 ARG PYTHON_VERSION
 # Layers will be different between python versions from here onwards because of the build-arg

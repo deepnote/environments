@@ -1,8 +1,6 @@
-ARG FROM_PYTHON_VERSION=3.7
-ARG FROM_TAG_SUFFIX=""
-FROM public.ecr.aws/deepnote/python:${FROM_PYTHON_VERSION}-bullseye${FROM_TAG_SUFFIX}
-# This is necessary to allow use of the value later in the Dockerfile.
-ARG FROM_PYTHON_VERSION
+ARG PYTHON_VERSION=3.8
+ARG CIRCLE_PULL_REQUEST
+FROM deepnote/python:${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -24,12 +22,12 @@ RUN MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x
     rm /tmp/miniconda.sh && \
     # Install the correct version of python (as the time of
     # writing, anaconda installed python 3.9 by default)
-    /opt/conda/bin/conda install python=${FROM_PYTHON_VERSION} && \
+    /opt/conda/bin/conda install python=${PYTHON_VERSION} && \
     /opt/conda/bin/conda clean --all
 
 ENV PATH=/opt/conda/bin:$PATH
 
-ENV PIP_TARGET=/opt/conda/lib/python${FROM_PYTHON_VERSION}/site-packages
+ENV PIP_TARGET=/opt/conda/lib/python${PYTHON_VERSION}/site-packages
 
 # Remove the system wide .profile file, because it overwrites the $PATH variable
 # and therefore the /opt/conda/bin directory is not in the $PATH.
