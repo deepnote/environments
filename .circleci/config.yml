@@ -48,10 +48,11 @@ jobs:
           command: |
             docker buildx build \
               --file=./python/base/Dockerfile.base \
-              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/deepnote/python:base \
-              --tag=docker.io/deepnote/python:base \
-              --cache-from type=registry,ref=docker.io/deepnote/python:base-buildcache,mode=max \
-              --cache-to type=registry,ref=docker.io/deepnote/python:base-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
+              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/deepnote/python:base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}} \
+              --tag=docker.io/deepnote/python:base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}} \
+              --cache-from type=registry,ref=docker.io/deepnote/python:base \
+              --cache-from type=registry,ref=docker.io/deepnote/python:base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-buildcache,mode=max \
+              --cache-to type=registry,ref=docker.io/deepnote/python:base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
               --progress plain \
               --platform linux/amd64 \
               --provenance=false \
