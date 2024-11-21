@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:bullseye-20241111-slim
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install OS dependencies
