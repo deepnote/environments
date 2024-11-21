@@ -47,7 +47,7 @@ jobs:
           name: Build and push base image
           command: |
             REPOSITORY="deepnote/python"
-            TAG="${PYTHON_VERSION}-base"
+            TAG="base"
             TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./python/base/Dockerfile.base \
