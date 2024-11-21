@@ -23,17 +23,17 @@ RUN apt-get update && apt-get -y dist-upgrade \
   gnupg2 \
   && rm -rf /var/lib/apt/lists/*
 
-# replace python version (optional) and 
+# replace python version (optional) and
 # create the virtual environment in the home directory in the Dockerfile
 # for performance improvement.
 ARG PYTHON_VER
 ARG TF_VERSION
-ADD ./gpu/setup.python.sh /tmp/setup.python.sh
+ADD ./setup.python.sh /tmp/setup.python.sh
 RUN bash /tmp/setup.python.sh ${PYTHON_VER} ${TF_VERSION}; rm -v /tmp/setup.python.sh
 
 # setup cuda for tensorflow
 ARG CUDA_IMAGE_TAG
-ADD ./gpu/setup.cuda.sh /tmp/setup.cuda.sh
+ADD ./setup.cuda.sh /tmp/setup.cuda.sh
 RUN bash /tmp/setup.cuda.sh ${CUDA_IMAGE_TAG}; rm -v /tmp/setup.cuda.sh
 
 ENV DEEPNOTE_PYTHON_KERNEL_ONLY=true

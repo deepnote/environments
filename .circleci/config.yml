@@ -60,7 +60,7 @@ jobs:
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
-              .
+              ./python/base
 
   build-and-push-python:
     machine:
@@ -96,7 +96,7 @@ jobs:
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
-              .
+              ./python/python
 
   build-and-push-python-datascience:
     machine:
@@ -166,7 +166,7 @@ jobs:
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
-              .
+              ./python/conda
 
   build-and-push-ir:
     executor: docker/docker
@@ -238,7 +238,7 @@ jobs:
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
-              .
+              ./gpu
 
 python-versions: &python-versions
   - "3.8.19"
