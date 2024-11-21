@@ -1,6 +1,6 @@
 ARG PYTHON_VERSION=3.8
 ARG CIRCLE_PULL_REQUEST
-FROM deepnote/python:${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+FROM deepnote/python:base
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
