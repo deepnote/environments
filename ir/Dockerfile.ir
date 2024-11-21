@@ -1,11 +1,10 @@
 # Define build arguments for Python and R versions
 ARG PYTHON_VERSION=3.9
-ARG R_VERSION=4.4.0
-
 # Use the specified Python version as the base image
 FROM deepnote/python:${PYTHON_VERSION}
 
 # Set environment variables
+ARG R_VERSION=4.4.0
 # Use the R version specified by the build argument
 ENV R_VERSION="${R_VERSION}" \
 	R_HOME="/usr/local/lib/R" \
@@ -27,7 +26,7 @@ RUN python -m venv jupyter-env && \
 	pip install --upgrade pip notebook
 
 # Install IRkernel and configure it
-RUN . ./jupyter-env/bin/activate && \ 
+RUN . ./jupyter-env/bin/activate && \
 	R -e "install.packages('IRkernel', repos='http://cran.rstudio.com/')" && \
 	R -e "IRkernel::installspec()"
 
