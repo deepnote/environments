@@ -116,8 +116,8 @@ jobs:
           name: Build and push python-datascience image
           command: |
             REPOSITORY="deepnote/python"
-            TAG="${PYTHON_VERSION}"
-            TAG_SUFFIX="-datascience${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+            TAG="${PYTHON_VERSION}-datascience"
+            TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./python/datascience/Dockerfile.datascience \
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
@@ -151,8 +151,8 @@ jobs:
           name: Build and push python-conda image
           command: |
             REPOSITORY="deepnote/python"
-            TAG="${PYTHON_VERSION}"
-            TAG_SUFFIX="-conda${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+            TAG="${PYTHON_VERSION}-conda"
+            TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./python/conda/Dockerfile.conda \
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
