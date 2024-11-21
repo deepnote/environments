@@ -169,7 +169,8 @@ jobs:
               ./python/conda
 
   build-and-push-ir:
-    executor: docker/docker
+    machine:
+      image: ubuntu-2404:current
     parameters:
       r-version:
         type: string
