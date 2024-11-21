@@ -21,15 +21,10 @@ ARG PYTHON_VERSION
 RUN MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"; \
     wget --quiet $MINICONDA_URL -O /tmp/miniconda.sh && \
     /bin/bash /tmp/miniconda.sh -b -p /opt/conda && \
-    rm /tmp/miniconda.sh && \
-    # Install the correct version of python (as the time of
-    # writing, anaconda installed python 3.9 by default)
-    /opt/conda/bin/conda install python=${PYTHON_VERSION} && \
-    /opt/conda/bin/conda clean --all
+    rm /tmp/miniconda.sh
 
 ENV PATH=/opt/conda/bin:$PATH
 
-ENV PIP_TARGET=/opt/conda/lib/python${PYTHON_VERSION}/site-packages
 
 # Remove the system wide .profile file, because it overwrites the $PATH variable
 # and therefore the /opt/conda/bin directory is not in the $PATH.
