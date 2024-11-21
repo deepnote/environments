@@ -1,0 +1,11 @@
+ARG R_VERSION=4.2.0
+FROM deepnote/ir:${R_VERSION}
+
+
+# Install the R libraries
+RUN R -e "install.packages(c('tidyverse', 'data.table', 'RSQLite', 'remotes', 'reticulate', 'igraph', 'plotly'), dependencies = T)"
+
+# Workaround for Java to install correctly
+RUN mkdir -p /usr/share/man/man1/
+
+RUN R -e "install.packages(c('rgl', 'hdf5r', 'rJava'), dependencies = T)"
