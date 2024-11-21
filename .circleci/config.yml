@@ -219,7 +219,7 @@ jobs:
             REPOSITORY="deepnote/ir-with-libs"
             TAG="${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
-              --file=.ir/ir-with-libs/Dockerfile.ir \
+              --file=./ir/ir-with-libs/Dockerfile.ir \
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG} \
               --tag=docker.io/${REPOSITORY}:${TAG} \
               --build-arg R_VERSION=${R_VERSION} \
