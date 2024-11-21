@@ -241,7 +241,7 @@ workflows:
             parameters:
               python-version: *python-versions
           requires:
-            - Python << matrix.python-version >>
+            - Building the base image
 
       - build-and-push-gpu:
           name: Tensorflow 2.9
