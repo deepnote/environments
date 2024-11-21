@@ -176,10 +176,10 @@ jobs:
         type: string
     environment:
       R_VERSION: << parameters.r-version >>
+      PYTHON_VERSION: "3.9"
     steps:
       - checkout
       - docker_login
-      - split_python_version # This provides PYTHON_VERSION
       - setup_buildkit_builder
       - run:
           name: Build and push python-conda image
