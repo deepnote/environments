@@ -190,6 +190,7 @@ jobs:
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG} \
               --tag=docker.io/${REPOSITORY}:${TAG} \
               --build-arg R_VERSION=${R_VERSION} \
+              --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max \
               --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
               --progress plain \
@@ -282,6 +283,8 @@ workflows:
           matrix:
             parameters:
               r-version: *r-versions
+          requires:
+            - Python 3.9.19
 
       - build-and-push-gpu:
           name: Tensorflow 2.9
