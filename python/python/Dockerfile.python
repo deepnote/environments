@@ -1,5 +1,5 @@
 ARG CIRCLE_PULL_REQUEST
-FROM debian:bullseye-slim AS builder
+FROM debian:bullseye-20241111-slim AS builder
 
 # Install dependencies for building Python
 RUN apt-get update && apt-get install -y --no-install-recommends \

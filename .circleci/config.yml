@@ -1,6 +1,7 @@
 version: 2.1
 
 orbs:
+  aws-cli: circleci/aws-cli@5.1.1
   docker: circleci/docker@2.8
 
 
@@ -21,29 +22,46 @@ commands:
               --name custom-builder \
               --use \
               --driver docker-container \
+  docker_login:
+    steps:
+      - aws-cli/setup:
+          role_arn: arn:aws:iam::978928340082:role/CircleCI
+          profile_name: production
+          role_session_name: "circleci-session"
+          session_duration: "1800"
+      - run:
+          name: Docker and ECR login
+          command: |
+            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            aws ecr get-login-password --region us-east-1 --profile production | \
+              docker login --username AWS --password-stdin 978928340082.dkr.ecr.us-east-1.amazonaws.com
 jobs:
   build-and-push-base:
-    executor: docker/docker
+    machine:
+      image: ubuntu-2404:current
     steps:
       - checkout
-      - setup_remote_docker
+      - docker_login
       - setup_buildkit_builder
-      - docker/check:
-          use-docker-credentials-store: true
-      - docker/build:
-          step-name: Base python image (debian + apt-get deps)
-          path: ./python/base
-          dockerfile: Dockerfile.base
-          extra_build_args: |
-            --progress plain
-            --platform linux/amd64
-            --cache-from type=registry,ref=deepnote/python:base-buildcache,mode=max
-            --cache-to type=registry,ref=deepnote/python:base-buildcache,mode=max
-            --output type=registry,push=true
-          image: deepnote/python
-          tag: base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      - run:
+          name: Build and push base image
+          command: |
+            docker buildx build \
+              --file=./python/base/Dockerfile.base \
+              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/deepnote/python:base \
+              --tag=docker.io/deepnote/python:base \
+              --cache-from type=registry,ref=docker.io/deepnote/python:base-buildcache,mode=max \
+              --cache-to type=registry,ref=docker.io/deepnote/python:base-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
+              --progress plain \
+              --platform linux/amd64 \
+              --provenance=false \
+              --sbom=false \
+              --output type=registry,push=true \
+              .
+
   build-and-push-python:
-    executor: docker/docker
+    machine:
+      image: ubuntu-2404:current
     parameters:
       python-version:
         type: string
@@ -51,28 +69,33 @@ jobs:
       PYTHON_VERSION_PATCH: << parameters.python-version >>
     steps:
       - checkout
-      - setup_remote_docker
-      - docker/check:
-          use-docker-credentials-store: true
-      - split_python_version
+      - docker_login
+      - split_python_version # This provides PYTHON_VERSION
       - setup_buildkit_builder
-      - docker/build:
-          step-name: Python image
-          path: ./python/base
-          dockerfile: Dockerfile.python
-          extra_build_args: |
-            --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST}
-            --build-arg PYTHON_VERSION=${PYTHON_VERSION}
-            --build-arg PYTHON_VERSION_PATCH=${PYTHON_VERSION_PATCH}
-            --progress plain
-            --platform linux/amd64
-            --cache-from type=registry,ref=deepnote/python:${PYTHON_VERSION}-buildcache,mode=max
-            --cache-to type=registry,ref=deepnote/python:${PYTHON_VERSION}-buildcache,mode=max
-            --output type=registry,push=true
-          image: deepnote/python
-          tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      - run:
+          name: Build and push python image
+          command: |
+            REPOSITORY="deepnote/python"
+            TAG="${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+            docker buildx build \
+              --file=./python/python/Dockerfile.python \
+              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG} \
+              --tag=docker.io/${REPOSITORY}:${TAG} \
+              --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
+              --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+              --build-arg PYTHON_VERSION_PATCH=${PYTHON_VERSION_PATCH} \
+              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max \
+              --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
+              --progress plain \
+              --platform linux/amd64 \
+              --provenance=false \
+              --sbom=false \
+              --output type=registry,push=true \
+              .
+
   build-and-push-python-datascience:
-    executor: docker/docker
+    machine:
+      image: ubuntu-2404:current
     parameters:
       python-version:
         type: string
@@ -80,29 +103,65 @@ jobs:
       PYTHON_VERSION_PATCH: << parameters.python-version >>
     steps:
       - checkout
-      - setup_remote_docker
-      - docker/check:
-          use-docker-credentials-store: true
-      - split_python_version
+      - docker_login
+      - split_python_version # This provides PYTHON_VERSION
       - setup_buildkit_builder
-      - docker/build:
-          step-name: Datascience Python image
-          path: ./python/datascience
-          docker-context: ./python/datascience
-          dockerfile: Dockerfile.datascience
-          extra_build_args: |
-            --build-arg PYTHON_VERSION=${PYTHON_VERSION}
-            --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST}
-            --progress plain
-            --platform linux/amd64
-            --cache-from type=registry,ref=deepnote/python:${PYTHON_VERSION}-buildcache,mode=max
-            --cache-from type=registry,ref=deepnote/python-datascience:${PYTHON_VERSION}-buildcache,mode=max
-            --cache-to type=registry,ref=deepnote/python-datascience:${PYTHON_VERSION}-buildcache,mode=max
-            --output type=registry,push=true
-          image: deepnote/python-datascience
-          tag: ${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+      - run:
+          name: Build and push python-datascience image
+          command: |
+            REPOSITORY="deepnote/python"
+            TAG="${PYTHON_VERSION}-datascience${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+            docker buildx build \
+              --file=./python/datascience/Dockerfile.datascience \
+              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG} \
+              --tag=docker.io/${REPOSITORY}:${TAG} \
+              --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
+              --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max \
+              --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
+              --progress plain \
+              --platform linux/amd64 \
+              --provenance=false \
+              --sbom=false \
+              --output type=registry,push=true \
+              ./python/datascience
+
+  build-and-push-python-conda:
+    machine:
+      image: ubuntu-2404:current
+    parameters:
+      python-version:
+        type: string
+    environment:
+      PYTHON_VERSION_PATCH: << parameters.python-version >>
+    steps:
+      - checkout
+      - docker_login
+      - split_python_version # This provides PYTHON_VERSION
+      - setup_buildkit_builder
+      - run:
+          name: Build and push python-conda image
+          command: |
+            REPOSITORY="deepnote/python"
+            TAG="${PYTHON_VERSION}-conda${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+            docker buildx build \
+              --file=./python/conda/Dockerfile.conda \
+              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG} \
+              --tag=docker.io/${REPOSITORY}:${TAG} \
+              --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
+              --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max \
+              --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
+              --progress plain \
+              --platform linux/amd64 \
+              --provenance=false \
+              --sbom=false \
+              --output type=registry,push=true \
+              .
+
   build-and-push-gpu:
-    executor: docker/docker
+    machine:
+      image: ubuntu-2404:current
     parameters:
       cuda-tag:
         type: string
@@ -116,19 +175,29 @@ jobs:
       PY_VERSION: << parameters.python-version >>
     steps:
       - checkout
-      - setup_remote_docker
-      - docker/check:
-          use-docker-credentials-store: true
-      - split_python_version
-      - docker/build:
-          step-name: Tensorflow GPU image
-          path: ./gpu
-          extra_build_args: "--build-arg CUDA_IMAGE_TAG=${CUDA_TAG} --build-arg TF_VERSION=${TF_VERSION} --build-arg PYTHON_VER=${PY_VERSION} --progress plain"
-          image: deepnote/tensorflow
-          tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
-      - docker/push:
-          image: deepnote/tensorflow
-          tag: ${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu
+      - docker_login
+      - split_python_version # This provides PYTHON_VERSION
+      - setup_buildkit_builder
+      - run:
+          name: Build and push python image
+          command: |
+            REPOSITORY="deepnote/tensorflow"
+            TAG="${TF_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu"
+            docker buildx build \
+              --file=./gpu/Dockerfile \
+              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG} \
+              --tag=docker.io/${REPOSITORY}:${TAG} \
+              --build-arg CUDA_IMAGE_TAG=${CUDA_TAG} \
+              --build-arg TF_VERSION=${TF_VERSION} \
+              --build-arg PYTHON_VER=${PY_VERSION} \
+              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max \
+              --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
+              --progress plain \
+              --platform linux/amd64 \
+              --provenance=false \
+              --sbom=false \
+              --output type=registry,push=true \
+              .
 
 python-versions: &python-versions
   - "3.8.19"
@@ -150,6 +219,13 @@ workflows:
             - Building the base image
       - build-and-push-python-datascience:
           name: Python Datascience << matrix.python-version >>
+          matrix:
+            parameters:
+              python-version: *python-versions
+          requires:
+            - Python << matrix.python-version >>
+      - build-and-push-python-conda:
+          name: Python Conda << matrix.python-version >>
           matrix:
             parameters:
               python-version: *python-versions
