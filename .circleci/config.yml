@@ -186,14 +186,13 @@ jobs:
     steps:
       - checkout
       - docker_login
-      - split_python_version # This provides PYTHON_VERSION
       - setup_buildkit_builder
       - run:
           name: Build and push python image
           command: |
             REPOSITORY="deepnote/tensorflow"
-            TAG="${TF_VERSION}"
-            TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}-gpu"
+            TAG="${TF_VERSION}-gpu"
+            TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./gpu/Dockerfile \
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
