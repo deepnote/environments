@@ -1,6 +1,7 @@
 ARG R_VERSION=4.2.0
-FROM deepnote/ir:${R_VERSION}
+ARG CIRCLE_PULL_REQUEST
 
+FROM deepnote/ir:${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
 # Install the R libraries
 RUN R -e "install.packages(c('tidyverse', 'data.table', 'RSQLite', 'remotes', 'reticulate', 'igraph', 'plotly'), dependencies = T)"
