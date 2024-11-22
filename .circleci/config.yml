@@ -4,7 +4,6 @@ orbs:
   aws-cli: circleci/aws-cli@5.1.1
   docker: circleci/docker@2.8
 
-
 commands:
   split_python_version:
     steps:
@@ -61,7 +60,7 @@ jobs:
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
-              .
+              ./python/base
 
   build-and-push-python:
     machine:
@@ -97,7 +96,7 @@ jobs:
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
-              .
+              ./python/python
 
   build-and-push-python-datascience:
     machine:
@@ -167,7 +166,72 @@ jobs:
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
-              .
+              ./python/conda
+
+  build-and-push-ir:
+    machine:
+      image: ubuntu-2404:current
+    parameters:
+      r-version:
+        type: string
+    environment:
+      R_VERSION: << parameters.r-version >>
+      PYTHON_VERSION: "3.9"
+    steps:
+      - checkout
+      - docker_login
+      - setup_buildkit_builder
+      - run:
+          name: Build and push ir image
+          command: |
+            REPOSITORY="deepnote/ir"
+            TAG="${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+            docker buildx build \
+              --file=./ir/ir-base/Dockerfile.ir \
+              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG} \
+              --tag=docker.io/${REPOSITORY}:${TAG} \
+              --build-arg R_VERSION=${R_VERSION} \
+              --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max \
+              --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
+              --progress plain \
+              --platform linux/amd64 \
+              --provenance=false \
+              --sbom=false \
+              --output type=registry,push=true \
+              ./ir/ir-base
+  build-and-push-ir-with-libs:
+    machine:
+      image: ubuntu-2404:current
+    parameters:
+      r-version:
+        type: string
+    environment:
+      R_VERSION: << parameters.r-version >>
+      PYTHON_VERSION: "3.9"
+    steps:
+      - checkout
+      - docker_login
+      - setup_buildkit_builder
+      - run:
+          name: Build and push ir with datascience libraries
+          command: |
+            REPOSITORY="deepnote/ir-with-libs"
+            TAG="${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+            docker buildx build \
+              --file=./ir/ir-with-libs/Dockerfile.ir \
+              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG} \
+              --tag=docker.io/${REPOSITORY}:${TAG} \
+              --build-arg R_VERSION=${R_VERSION} \
+              --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
+              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max \
+              --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
+              --progress plain \
+              --platform linux/amd64 \
+              --provenance=false \
+              --sbom=false \
+              --output type=registry,push=true \
+              ./ir/ir-with-libs
 
   build-and-push-gpu:
     machine:
@@ -208,13 +272,17 @@ jobs:
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
-              .
+              ./gpu
 
 python-versions: &python-versions
   - "3.8.19"
   - "3.9.19"
   - "3.10.15"
   - "3.11.10"
+
+r-versions: &r-versions
+  - "4.0.4"
+  - "4.2.0"
 
 workflows:
   build:
@@ -242,6 +310,20 @@ workflows:
               python-version: *python-versions
           requires:
             - Building the base image
+      - build-and-push-ir:
+          name: R << matrix.r-version >>
+          matrix:
+            parameters:
+              r-version: *r-versions
+          requires:
+            - Python 3.9.19
+      - build-and-push-ir-with-libs:
+          name: R with libs << matrix.r-version >>
+          matrix:
+            parameters:
+              r-version: *r-versions
+          requires:
+            - R << matrix.r-version >>
 
       - build-and-push-gpu:
           name: Tensorflow 2.9
