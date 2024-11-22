@@ -16,4 +16,6 @@ RUN R -e "install.packages('plotly', repos='https://cloud.r-project.org', depend
 # Workaround for Java to install correctly
 RUN mkdir -p /usr/share/man/man1/
 
-RUN R -e "install.packages(c('rgl', 'hdf5r', 'rJava'), dependencies = T)"
+RUN R -e "install.packages('rgl', repos='https://cloud.r-project.org', dependencies=TRUE)"
+RUN R -e "install.packages('hdf5r', repos='https://cloud.r-project.org', dependencies=TRUE)"
+RUN R -e "install.packages('rJava', repos='https://cloud.r-project.org', dependencies=TRUE)"
