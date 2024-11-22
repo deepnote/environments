@@ -27,7 +27,8 @@ RUN cd "/tmp" \
     && make -j "$(nproc)" \
     && make altinstall
 
-RUN ln -s /usr/local/bin/python${PYTHON_VERSION} /usr/local/bin/python \
+RUN ln -s /usr/local/bin/python${PYTHON_VERSION} /usr/local/bin/python3 \
+    && ln -s /usr/local/bin/python3 /usr/local/bin/python \
     && ln -s /usr/local/bin/pip${PYTHON_VERSION} /usr/local/bin/pip
 
 # We create the virtual environment in the home directory in the Dockerfile
