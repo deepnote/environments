@@ -1,0 +1,35 @@
+# Define build arguments for Python and R versions
+ARG PYTHON_VERSION=3.9
+# Use the specified Python version as the base image
+FROM deepnote/python:${PYTHON_VERSION}
+
+# Set environment variables
+ARG R_VERSION=4.4.0
+# Use the R version specified by the build argument
+ENV R_VERSION="${R_VERSION}" \
+	R_HOME="/usr/local/lib/R" \
+	TZ="Etc/UTC" \
+	DEFAULT_KERNEL_NAME="ir" \
+	DEEPNOTE_PYTHON_KERNEL_ONLY=""
+
+# Copy the R installation script and run it
+COPY install_R_source.sh /rocker_scripts/install_R_source.sh
+RUN chmod +x /rocker_scripts/install_R_source.sh && \
+	/rocker_scripts/install_R_source.sh
+
+# Set the working directory
+WORKDIR /opt
+
+# Create and activate a virtual environment in one RUN command
+RUN python -m venv jupyter-env && \
+	. ./jupyter-env/bin/activate && \
+	pip install --upgrade pip notebook
+
+# Install IRkernel and configure it
+RUN . ./jupyter-env/bin/activate && \
+	R -e "install.packages('IRkernel', repos='http://cran.rstudio.com/')" && \
+	R -e "IRkernel::installspec()"
+
+# Clean up unnecessary files to reduce the image size
+RUN apt-get clean && \
+	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
