@@ -17,17 +17,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and extract the Python source code
+ARG PYTHON_VERSION_PATCH
 ARG PYTHON_VERSION
+
 RUN cd "/tmp" \
-    && wget -qO- "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" | tar xvz \
-    && cd "/tmp/Python-${PYTHON_VERSION}" \
+    && wget -qO- "https://www.python.org/ftp/python/${PYTHON_VERSION_PATCH}/Python-${PYTHON_VERSION_PATCH}.tgz" | tar xvz \
+    && cd "/tmp/Python-${PYTHON_VERSION_PATCH}" \
     && ./configure --enable-optimizations --with-ensurepip=install  \
     && make -j "$(nproc)" \
     && make altinstall
 
-RUN PYTHON_MAJOR_MINOR_VERSION="${PYTHON_VERSION%.*}" \
-    && ln -s /usr/local/bin/python${PYTHON_MAJOR_MINOR_VERSION} /usr/local/bin/python \
-    && ln -s /usr/local/bin/pip${PYTHON_MAJOR_MINOR_VERSION} /usr/local/bin/pip
+RUN ln -s /usr/local/bin/python${PYTHON_VERSION} /usr/local/bin/python \
+    && ln -s /usr/local/bin/pip${PYTHON_VERSION} /usr/local/bin/pip
 
 # We create the virtual environment in the home directory in the Dockerfile
 # for performance improvement.
