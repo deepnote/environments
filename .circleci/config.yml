@@ -5,13 +5,6 @@ orbs:
   docker: circleci/docker@2.8
 
 commands:
-  split_python_version:
-    steps:
-      - run:
-          name: Split python version
-          command: |
-            echo "export PYTHON_VERSION=$(echo $PYTHON_VERSION_PATCH | cut -d'.' -f1,2)" >> $BASH_ENV
-            source $BASH_ENV
   setup_buildkit_builder:
     steps:
       - run:
@@ -69,11 +62,10 @@ jobs:
       python-version:
         type: string
     environment:
-      PYTHON_VERSION_PATCH: << parameters.python-version >>
+      PYTHON_VERSION: << parameters.python-version >>
     steps:
       - checkout
       - docker_login
-      - split_python_version # This provides PYTHON_VERSION
       - setup_buildkit_builder
       - run:
           name: Build and push python image
@@ -81,13 +73,12 @@ jobs:
             REPOSITORY="deepnote/python"
             TAG="${PYTHON_VERSION}"
             TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+
             docker buildx build \
-              --file=./python/python/Dockerfile.python \
+              --file=./python/python/Dockerfile.python${PYTHON_VERSION} \
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
-              --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
-              --build-arg PYTHON_VERSION_PATCH=${PYTHON_VERSION_PATCH} \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache \
               --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
@@ -105,11 +96,10 @@ jobs:
       python-version:
         type: string
     environment:
-      PYTHON_VERSION_PATCH: << parameters.python-version >>
+      PYTHON_VERSION: << parameters.python-version >>
     steps:
       - checkout
       - docker_login
-      - split_python_version # This provides PYTHON_VERSION
       - setup_buildkit_builder
       - run:
           name: Build and push python-datascience image
@@ -140,11 +130,10 @@ jobs:
       python-version:
         type: string
     environment:
-      PYTHON_VERSION_PATCH: << parameters.python-version >>
+      PYTHON_VERSION: << parameters.python-version >>
     steps:
       - checkout
       - docker_login
-      - split_python_version # This provides PYTHON_VERSION
       - setup_buildkit_builder
       - run:
           name: Build and push python-conda image
@@ -275,10 +264,10 @@ jobs:
               ./gpu
 
 python-versions: &python-versions
-  - "3.8.19"
-  - "3.9.19"
-  - "3.10.15"
-  - "3.11.10"
+  - "3.8"
+  - "3.9"
+  - "3.10"
+  - "3.11"
 
 r-versions: &r-versions
   - "4.0.4"
@@ -316,7 +305,7 @@ workflows:
             parameters:
               r-version: *r-versions
           requires:
-            - Python 3.9.19
+            - Python 3.9
       - build-and-push-ir-with-libs:
           name: R with libs << matrix.r-version >>
           matrix:
