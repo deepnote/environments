@@ -2,9 +2,6 @@ ARG PYTHON_VERSION=3.8
 ARG CIRCLE_PULL_REQUEST
 FROM deepnote/python:${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
-RUN pip install --upgrade pip
-
-
 # Add the requirements files
 ADD requirements-3.11+.txt /requirements-3.11+.txt
 ADD requirements-below-3.11.txt /requirements-below-3.11.txt
@@ -12,8 +9,6 @@ ADD constraints.txt /constraints.txt
 
 #Determine the Python version and set the version-specifications file
 ARG PYTHON_VERSION
-
-RUN python -m pip install --upgrade setuptools pip
 
 RUN if [ "$(printf '%s\n' "$PYTHON_VERSION" "3.11" | sort -V | head -n1)" = "3.11" ]; then \
   mv "requirements-3.11+.txt" "requirements.txt" \
@@ -25,8 +20,9 @@ RUN if [ "$(printf '%s\n' "$PYTHON_VERSION" "3.11" | sort -V | head -n1)" = "3.1
 # Combine all RUN commands into one to minimize the number of layers
 RUN apt-get update \
   && apt-get install -y --no-install-recommends gcc \
-  && pip install --no-cache-dir -r requirements.txt -c constraints.txt \
+  && pip install --no-cache-dir -r requirements.txt -c tk.deepnote.com/constraints${PYTHON_VERSION}.txt \
   && apt-get purge -y gcc \
   && apt-get autoremove -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /root/.cache
+
