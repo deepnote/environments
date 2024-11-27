@@ -25,3 +25,7 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /root/.cache
 
+# We create the virtual environment in the home directory in the Dockerfile
+# for performance improvement.
+RUN python -m venv --system-site-packages ~/venv
+RUN . ~/venv/bin/activate && pip install --upgrade pip setuptools
