@@ -109,9 +109,3 @@ RUN set -eux; \
 		[ ! -e "/usr/local/bin/$dst" ]; \
 		ln -svT "$src" "/usr/local/bin/$dst"; \
 	done
-
-
-
-# We create the virtual environment in the home directory in the Dockerfile
-# for performance improvement.
-RUN python -m venv --system-site-packages ~/venv
