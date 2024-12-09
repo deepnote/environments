@@ -37,6 +37,7 @@ fi
 apt-get install -y --no-install-recommends \
     bash-completion \
     ca-certificates \
+    curl \
     file \
     fonts-texgyre \
     g++ \
@@ -61,7 +62,7 @@ apt-get install -y --no-install-recommends \
     zip \
     zlib1g
 
-BUILDDEPS="curl \
+BUILDDEPS="\
     default-jdk \
     devscripts \
     libbz2-dev \

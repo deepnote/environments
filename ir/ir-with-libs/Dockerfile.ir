@@ -7,7 +7,7 @@ FROM deepnote/ir:${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*
 RUN mkdir -p /usr/share/man/man1/
 
 # Install R lib dependencies
-ENV BUILDDEPS="curl \
+ENV BUILDDEPS="\
 default-jdk \
 devscripts \
 libbz2-dev \
