@@ -7,45 +7,47 @@ FROM deepnote/ir:${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*
 RUN mkdir -p /usr/share/man/man1/
 
 # Install R lib dependencies
-RUN apt-get update && apt-get install -y curl \
-  default-jdk \
-  devscripts \
-  libbz2-dev \
-  libcairo2-dev \
-  libcurl4-openssl-dev \
-  libgit2-dev \
-  libicu-dev \
-  libjpeg-dev \
-  liblzma-dev \
-  libmagick++-dev \
-  libpango1.0-dev \
-  libpcre2-dev \
-  libpng-dev \
-  libreadline-dev \
-  librsvg2-dev \
-  libtiff5-dev \
-  libudunits2-dev \
-  libv8-dev \
-  libx11-dev \
-  libxml2-dev \
-  libxt-dev \
-  perl \
-  rsync \
-  subversion \
-  tcl-dev \
-  texinfo \
-  texlive-extra-utils \
-  texlive-fonts-extra \
-  texlive-fonts-recommended \
-  texlive-latex-extra \
-  texlive-latex-recommended \
-  tk-dev \
-  wget \
-  x11proto-core-dev \
-  xauth \
-  xfonts-base \
-  xvfb \
-  zlib1g-dev \
+ENV BUILDDEPS="curl \
+default-jdk \
+devscripts \
+libbz2-dev \
+libcairo2-dev \
+libcurl4-openssl-dev \
+libgit2-dev \
+libicu-dev \
+libjpeg-dev \
+liblzma-dev \
+libmagick++-dev \
+libpango1.0-dev \
+libpcre2-dev \
+libpng-dev \
+libreadline-dev \
+librsvg2-dev \
+libtiff5-dev \
+libudunits2-dev \
+libv8-dev \
+libx11-dev \
+libxml2-dev \
+libxt-dev \
+perl \
+rsync \
+subversion \
+tcl-dev \
+texinfo \
+texlive-extra-utils \
+texlive-fonts-extra \
+texlive-fonts-recommended \
+texlive-latex-extra \
+texlive-latex-recommended \
+tk-dev \
+wget \
+x11proto-core-dev \
+xauth \
+xfonts-base \
+xvfb \
+zlib1g-dev"
+
+RUN apt-get update && apt-get install -y ${BUILDDEPS} \
   && \
   # Install the R libraries
   R -e "install.packages('tidyverse', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
@@ -59,4 +61,5 @@ RUN apt-get update && apt-get install -y curl \
   R -e "install.packages('hdf5r', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
   R -e "install.packages('rJava', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
   apt-get clean && \
+  apt-get remove --purge -y ${BUILDDEPS} && \
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
