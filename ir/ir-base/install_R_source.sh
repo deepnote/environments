@@ -143,7 +143,7 @@ make clean
 
 ## Add a library directory (for user-installed packages)
 mkdir -p "${R_HOME}/site-library"
-chown root:staff "${R_HOME}/site-library"
+#chown root:staff "${R_HOME}/site-library"
 chmod g+ws "${R_HOME}/site-library"
 
 ## Fix library path
