@@ -13,38 +13,38 @@ RUN apt-get update && apt-get install -y curl \
   libbz2-dev \
   libcairo2-dev \
   libcurl4-openssl-dev \
-  libpango1.0-dev \
-  libjpeg-dev \
+  libgit2-dev \
   libicu-dev \
+  libjpeg-dev \
+  liblzma-dev \
+  libmagick++-dev \
+  libpango1.0-dev \
   libpcre2-dev \
   libpng-dev \
   libreadline-dev \
+  librsvg2-dev \
   libtiff5-dev \
-  liblzma-dev \
-  libgit2-dev \
-  libmagick++-dev \
   libudunits2-dev \
   libv8-dev \
-  librsvg2-dev \
-  libxml2-dev \
   libx11-dev \
+  libxml2-dev \
   libxt-dev \
   perl \
   rsync \
   subversion \
   tcl-dev \
-  tk-dev \
   texinfo \
   texlive-extra-utils \
-  texlive-fonts-recommended \
   texlive-fonts-extra \
-  texlive-latex-recommended \
+  texlive-fonts-recommended \
   texlive-latex-extra \
+  texlive-latex-recommended \
+  tk-dev \
+  wget \
   x11proto-core-dev \
   xauth \
   xfonts-base \
   xvfb \
-  wget \
   zlib1g-dev \
   && \
   # Install the R libraries
