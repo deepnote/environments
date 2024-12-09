@@ -21,6 +21,12 @@ RUN apt-get update && apt-get install -y curl \
   libreadline-dev \
   libtiff5-dev \
   liblzma-dev \
+  libgit2-dev \
+  libmagick++-dev \
+  libudunits2-dev \
+  libv8-dev \
+  librsvg2-dev \
+  libxml2-dev \
   libx11-dev \
   libxt-dev \
   perl \
