@@ -10,9 +10,10 @@ scrapy==2.11.*
 jsonify==0.5
 datascience>=0.17,<1 
 textblob==0.17.*
-tabulate==0.9.*
+tabulate==0.9.*s
 sympy==1.12
 squarify==0.4.*
 tensorflow>=2.10,<3
 torch==2.1.*
 torchvision==0.16.*
+snowflake-snowpark-python
