@@ -16,4 +16,4 @@ squarify==0.4.*
 tensorflow>=2.10,<3
 torch==2.1.*
 torchvision==0.16.*
-snowflake-snowpark-python
+snowflake-snowpark-python==1.26.*
