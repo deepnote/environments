@@ -316,16 +316,16 @@ workflows:
 
       - build-and-push-gpu:
           name: Tensorflow 2.9
-          cuda-tag: "11.4.3-runtime-ubuntu20.04"
+          cuda-tag: "12.6.3-runtime-ubuntu20.04"
           tf-version: "2.9.1"
           python-version: "3.8"
       - build-and-push-gpu:
           name: Tensorflow 2.11
-          cuda-tag: "11.4.3-runtime-ubuntu20.04"
+          cuda-tag: "12.6.3-runtime-ubuntu20.04"
           tf-version: "2.11.1"
           python-version: "3.10"
       - build-and-push-gpu:
           name: Tensorflow 2.15
-          cuda-tag: "12.2.2-runtime-ubuntu22.04"
+          cuda-tag: "12.6.3-runtime-ubuntu22.04"
           tf-version: "2.15.0"
           python-version: "3.11"
