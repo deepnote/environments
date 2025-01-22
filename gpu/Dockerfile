@@ -1,4 +1,4 @@
-ARG CUDA_IMAGE_TAG=11.4.3-runtime-ubuntu20.04
+ARG CUDA_IMAGE_TAG=12.6.3-runtime-ubuntu20.04
 FROM nvidia/cuda:${CUDA_IMAGE_TAG}
 
 ENV DEBIAN_FRONTEND=noninteractive
