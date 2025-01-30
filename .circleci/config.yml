@@ -226,14 +226,17 @@ jobs:
     machine:
       image: ubuntu-2404:current
     parameters:
-      cuda-tag:
+      cuda-version:
+        type: string
+      ubuntu-version:
         type: string
       tf-version:
         type: string
       python-version:
         type: string
     environment:
-      CUDA_TAG: << parameters.cuda-tag >>
+      CUDA_VERSION: << parameters.cuda-version >>
+      UBUNTU_VERSION: << parameters.ubuntu-version >>
       TF_VERSION: << parameters.tf-version >>
       PY_VERSION: << parameters.python-version >>
     steps:
@@ -244,13 +247,14 @@ jobs:
           name: Build and push python image
           command: |
             REPOSITORY="deepnote/tensorflow"
-            TAG="${TF_VERSION}-gpu"
+            TAG="gpu-${TF_VERSION}-${CUDA_VERSION}-${UBUNTU_VERSION}"
             TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+            CUDA_BASE_IMAGE_TAG=${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}
             docker buildx build \
               --file=./gpu/Dockerfile \
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
-              --build-arg CUDA_IMAGE_TAG=${CUDA_TAG} \
+              --build-arg CUDA_IMAGE_TAG=${CUDA_BASE_IMAGE_TAG} \
               --build-arg TF_VERSION=${TF_VERSION} \
               --build-arg PYTHON_VER=${PY_VERSION} \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
@@ -315,17 +319,39 @@ workflows:
             - R << matrix.r-version >>
 
       - build-and-push-gpu:
-          name: Tensorflow 2.9
-          cuda-tag: "11.4.3-runtime-ubuntu20.04"
+          name: Tensorflow 2.9, Cuda 12.6, Ubuntu 20.04
+          cuda-version: "12.6.3"
+          ubuntu-version: "20.04"
           tf-version: "2.9.1"
           python-version: "3.8"
       - build-and-push-gpu:
-          name: Tensorflow 2.11
-          cuda-tag: "11.4.3-runtime-ubuntu20.04"
+          name: Tensorflow 2.11, Cuda 12.6, Ubuntu 20.04
+          cuda-version: "12.6.3"
+          ubuntu-version: "20.04"
           tf-version: "2.11.1"
           python-version: "3.10"
       - build-and-push-gpu:
-          name: Tensorflow 2.15
-          cuda-tag: "12.2.2-runtime-ubuntu22.04"
+          name: Tensorflow 2.15, Cuda 12.6, Ubuntu 22.04
+          cuda-version: "12.6.3"
+          ubuntu-version: "22.04"
+          tf-version: "2.15.0"
+          python-version: "3.11"
+
+      - build-and-push-gpu:
+          name: Tensorflow 2.9, Cuda 11.8, Ubuntu 20.04
+          cuda-version: "11.8.0"
+          ubuntu-version: "20.04"
+          tf-version: "2.9.1"
+          python-version: "3.8"
+      - build-and-push-gpu:
+          name: Tensorflow 2.11, Cuda 11.8, Ubuntu 20.04
+          cuda-version: "11.8.0"
+          ubuntu-version: "20.04"
+          tf-version: "2.11.1"
+          python-version: "3.10"
+      - build-and-push-gpu:
+          name: Tensorflow 2.15, Cuda 11.8, Ubuntu 22.04
+          cuda-version: "11.8.0"
+          ubuntu-version: "22.04"
           tf-version: "2.15.0"
           python-version: "3.11"

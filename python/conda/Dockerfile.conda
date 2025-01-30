@@ -17,7 +17,12 @@ ENV CONDA_ALWAYS_YES=true
 # but that would require baking in the URLs for
 # different Miniconda installer versions into the Dockerfile.
 ARG PYTHON_VERSION
-RUN MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"; \
+RUN if [ "$PYTHON_VERSION" = "3.8" ]; then \
+      # last version of conda compatible with python 3.8
+      MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-py38_23.11.0-2-Linux-x86_64.sh"; \
+    else \
+      MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"; \
+    fi && \
     wget --quiet $MINICONDA_URL -O /tmp/miniconda.sh && \
     /bin/bash /tmp/miniconda.sh -b -p /opt/conda && \
     rm /tmp/miniconda.sh && \
