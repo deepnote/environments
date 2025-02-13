@@ -18,4 +18,4 @@ tensorflow>=2.10,<3
 torch==1.12.*
 torchvision==0.13.*
 snowflake-snowpark-python==1.26.*
-geopandas==1.0.*
+geopandas>=0.11.1
