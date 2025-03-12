@@ -32,6 +32,13 @@ ln -s /usr/bin/python3 /usr/bin/python
 pip uninstall -y cryptography
 pip install numpy==1.23.4 tensorflow==$TF_VERSION -c https://tk.deepnote.com/constraints${PYTHON_VER}.txt
 
+for src in idle3 pip3 pydoc3 python3 python3-config; do \
+		dst="$(echo "$src" | tr -d 3)"; \
+		[ -s "/usr/local/bin/$src" ]; \
+		[ ! -e "/usr/local/bin/$dst" ]; \
+		ln -svT "$src" "/usr/local/bin/$dst"; \
+done
+
 # create the virtual environment in the home directory in the Dockerfile
 # using our upgraded python version
 python"$PYTHON_VER" -m venv --system-site-packages ~/venv
