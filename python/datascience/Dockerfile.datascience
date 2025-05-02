@@ -18,4 +18,4 @@ RUN if [ "$(printf '%s\n' "$PYTHON_VERSION" "3.11" | sort -V | head -n1)" = "3.1
 
 RUN python -m venv --system-site-packages ~/venv
 RUN . ~/venv/bin/activate \ 
-  && pip install --no-cache-dir -r requirements.txt -c https://tk.deepnote.com/constraints${PYTHON_VERSION}.txt
+  && pip install --no-cache-dir -r requirements.txt -c https://deepnote-staging-runtime-artifactory.s3.us-east-1.amazonaws.com/deepnote-toolkit/b41caa1/constraints${PYTHON_VERSION}.txt
