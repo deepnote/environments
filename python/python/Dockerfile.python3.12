@@ -3,8 +3,8 @@
 ## This is temporary solution and we come with proper solution in the future.
 ## Ticket: https://linear.app/deepnote/issue/PLA-3219/cleanup-build-pipeline-for-deepnote-python-images
 
-
-FROM buildpack-deps:bullseye
+ARG CIRCLE_PULL_REQUEST
+FROM deepnote/python:base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
 # ensure local python is preferred over distribution python
 ENV PATH /usr/local/bin:$PATH
