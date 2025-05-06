@@ -272,6 +272,7 @@ python-versions: &python-versions
   - "3.9"
   - "3.10"
   - "3.11"
+  - "3.12"
 
 r-versions: &r-versions
   - "4.0.4"
