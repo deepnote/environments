@@ -155,7 +155,6 @@ jobs:
               --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
               --progress plain \
               --platform linux/amd64 \
-              --platform linux/arm64 \
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
