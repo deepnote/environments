@@ -67,6 +67,7 @@ jobs:
       - setup_buildkit_builder
       - run:
           name: Build and push python image
+          no_output_timeout: 60m  # building Python can take a while, default timeout is 10m
           command: |
             REPOSITORY="deepnote/python"
             TAG="${PYTHON_VERSION}"
