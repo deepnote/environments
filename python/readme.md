@@ -2,8 +2,8 @@
 -  **Maintained by**: [Deepnote](https://deepnote.com/)
 
 # Supported Tags and Respective Dockerfile Links
--  [`3.8`, `3.9`, `3.10`, `3.11`](https://github.com/deepnote/environments/tree/main/python/python)
--  [`3.8-datascience`, `3.9-datascience`, `3.10-datascience`, `3.11-datascience`](https://github.com/deepnote/environments/blob/main/python/datascience/Dockerfile.datascience)
+-  [`3.9`, `3.10`, `3.11`, `3.12`](https://github.com/deepnote/environments/tree/main/python/python)
+-  [`3.9-datascience`, `3.10-datascience`, `3.11-datascience`, `3.12-datascience`](https://github.com/deepnote/environments/blob/main/python/datascience/Dockerfile.datascience)
 
 # What is Deepnote Python?
 Deepnote Python is a set of Docker images tailored for use in the Deepnote platform. These images are based on the official [Python Docker images](https://hub.docker.com/_/python) and include additional binaries and configurations to enhance the user experience within Deepnote. They are designed to simplify development workflows, especially for data science projects, by providing pre-configured environments that are ready to use.
