@@ -4,7 +4,6 @@ FROM deepnote/python:base
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        wget \
         tini  \
         libglib2.0-0 libxext6 libsm6 libxrender1 && \
     apt-get clean && \
@@ -18,8 +17,7 @@ ENV CONDA_ALWAYS_YES=true
 # but that would require baking in the URLs for
 # different Miniconda installer versions into the Dockerfile.
 ARG PYTHON_VERSION
-RUN MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" && \
-    wget --quiet $MINICONDA_URL -O /tmp/miniconda.sh && \
+RUN wget --quiet "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" -O /tmp/miniconda.sh && \
     /bin/bash /tmp/miniconda.sh -b -p /opt/conda && \
     rm /tmp/miniconda.sh && \
     # Install the correct version of python (as the time of
