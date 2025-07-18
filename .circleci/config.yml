@@ -198,9 +198,12 @@ jobs:
     parameters:
       r-version:
         type: string
+      python-version:
+        type: string
+        default: "3.9"
     environment:
       R_VERSION: << parameters.r-version >>
-      PYTHON_VERSION: "3.9"
+      PYTHON_VERSION: << parameters.python-version >>
     steps:
       - checkout
       - docker_login
@@ -332,7 +335,14 @@ workflows:
               r-version: *r-versions
           requires:
             - R << matrix.r-version >>
-
+      - build-and-push-ir-with-libs:
+          name: R with libs << matrix.r-version >>
+          matrix:
+            parameters:
+              r-version: *python310-r-versions
+          python-version: "3.10"
+          requires:
+            - Python 3.10
       - build-and-push-gpu:
           name: Tensorflow 2.9, Cuda 12.6, Ubuntu 20.04
           cuda-version: "12.6.3"
