@@ -342,7 +342,7 @@ workflows:
               r-version: *python310-r-versions
           python-version: "3.10"
           requires:
-            - Python 3.10
+            - R << matrix.r-version >>
       - build-and-push-gpu:
           name: Tensorflow 2.9, Cuda 12.6, Ubuntu 20.04
           cuda-version: "12.6.3"
