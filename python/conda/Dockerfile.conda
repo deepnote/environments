@@ -4,6 +4,7 @@ FROM deepnote/python:base
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+        wget \
         tini  \
         libglib2.0-0 libxext6 libsm6 libxrender1 && \
     apt-get clean && \
