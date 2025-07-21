@@ -274,7 +274,6 @@ jobs:
               ./gpu
 
 python-versions: &python-versions
-  - "3.8"
   - "3.9"
   - "3.10"
   - "3.11"
@@ -348,7 +347,7 @@ workflows:
           cuda-version: "12.6.3"
           ubuntu-version: "20.04"
           tf-version: "2.9.1"
-          python-version: "3.8"
+          python-version: "3.10"
       - build-and-push-gpu:
           name: Tensorflow 2.11, Cuda 12.6, Ubuntu 20.04
           cuda-version: "12.6.3"
@@ -367,7 +366,7 @@ workflows:
           cuda-version: "11.8.0"
           ubuntu-version: "20.04"
           tf-version: "2.9.1"
-          python-version: "3.8"
+          python-version: "3.10"
       - build-and-push-gpu:
           name: Tensorflow 2.11, Cuda 11.8, Ubuntu 20.04
           cuda-version: "11.8.0"
