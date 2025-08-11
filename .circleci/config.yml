@@ -46,8 +46,7 @@ jobs:
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --progress plain \
-              --platform linux/amd64 \
-              --platform linux/arm64 \
+              --platform linux/amd64,linux/arm64 \
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
@@ -79,8 +78,7 @@ jobs:
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
               --progress plain \
-              --platform linux/amd64 \
-              --platform linux/arm64 \
+              --platform linux/amd64,linux/arm64 \
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
@@ -111,8 +109,7 @@ jobs:
               --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
               --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
               --progress plain \
-              --platform linux/amd64 \
-              --platform linux/arm64 \
+              --platform linux/amd64,linux/arm64 \
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \

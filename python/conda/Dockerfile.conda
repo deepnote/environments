@@ -18,13 +18,20 @@ ENV CONDA_ALWAYS_YES=true
 # but that would require baking in the URLs for
 # different Miniconda installer versions into the Dockerfile.
 ARG PYTHON_VERSION
-RUN wget --quiet "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" -O /tmp/miniconda.sh && \
+ARG TARGETARCH
+RUN case "$TARGETARCH" in \
+      amd64) MINICONDA_ARCH="x86_64" ;; \
+      arm64) MINICONDA_ARCH="aarch64" ;; \
+      *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;; \
+    esac && \
+    wget --quiet "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${MINICONDA_ARCH}.sh" -O /tmp/miniconda.sh && \
     /bin/bash /tmp/miniconda.sh -b -p /opt/conda && \
     rm /tmp/miniconda.sh && \
     # Use community packages from conda-forge instead of Anaconda Inc. default channels
     # which require accepting terms of service & using commercial license for orgs with more than 200 employees
     /opt/conda/bin/conda config --add channels conda-forge && \
-    /opt/conda/bin/conda config --remove channels defaults && \
+    /opt/conda/bin/conda config --remove channels defaults || true && \
+    /opt/conda/bin/conda config --set channel_priority strict && \
     # Install the correct version of python (as the time of writing, anaconda 
     # installed python 3.11 by default) for parity with our base image
     /opt/conda/bin/conda install python=${PYTHON_VERSION} && \
