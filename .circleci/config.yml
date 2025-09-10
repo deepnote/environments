@@ -342,6 +342,33 @@ workflows:
           python-version: "3.10"
           requires:
             - R << matrix.r-version >>
+
+      - build-and-push-gpu:
+          name: Tensorflow 2.15, Cuda 11.8, Ubuntu 22.04
+          cuda-version: "11.8.0"
+          ubuntu-version: "22.04"
+          tf-version: "2.15.1"
+          python-version: "3.11"
+      - build-and-push-gpu:
+          name: Tensorflow 2.15, Cuda 12.6, Ubuntu 22.04
+          cuda-version: "12.6.3"
+          ubuntu-version: "22.04"
+          tf-version: "2.15.1"
+          python-version: "3.11"
+      - build-and-push-gpu:
+          name: Tensorflow 2.17, Cuda 12.6, Ubuntu 24.04
+          cuda-version: "12.6.3"
+          ubuntu-version: "24.04"
+          tf-version: "2.17.1"
+          python-version: "3.11"
+      - build-and-push-gpu:
+          name: Tensorflow 2.19, Cuda 12.6, Ubuntu 24.04
+          cuda-version: "12.6.3"
+          ubuntu-version: "24.04"
+          tf-version: "2.19.1"
+          python-version: "3.11"
+
+      # To be deprecated
       - build-and-push-gpu:
           name: Tensorflow 2.9, Cuda 12.6, Ubuntu 20.04
           cuda-version: "12.6.3"
@@ -355,13 +382,6 @@ workflows:
           tf-version: "2.11.1"
           python-version: "3.10"
       - build-and-push-gpu:
-          name: Tensorflow 2.15, Cuda 12.6, Ubuntu 22.04
-          cuda-version: "12.6.3"
-          ubuntu-version: "22.04"
-          tf-version: "2.15.0"
-          python-version: "3.11"
-
-      - build-and-push-gpu:
           name: Tensorflow 2.9, Cuda 11.8, Ubuntu 20.04
           cuda-version: "11.8.0"
           ubuntu-version: "20.04"
@@ -373,9 +393,3 @@ workflows:
           ubuntu-version: "20.04"
           tf-version: "2.11.1"
           python-version: "3.10"
-      - build-and-push-gpu:
-          name: Tensorflow 2.15, Cuda 11.8, Ubuntu 22.04
-          cuda-version: "11.8.0"
-          ubuntu-version: "22.04"
-          tf-version: "2.15.0"
-          python-version: "3.11"
