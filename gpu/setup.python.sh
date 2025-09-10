@@ -29,8 +29,8 @@ curl -sS https://bootstrap.pypa.io/get-pip.py | python$PYTHON_VER
 ln -s /usr/bin/python3 /usr/bin/python
 
 # We need to remove some pre-installed pip packages that end up clashing with our compute-deps
-pip uninstall -y cryptography
-pip install numpy==1.23.4 tensorflow==$TF_VERSION -c https://tk.deepnote.com/constraints${PYTHON_VER}.txt
+python"$PYTHON_VER" -m pip uninstall -y cryptography || true
+python"$PYTHON_VER" -m pip install numpy tensorflow==$TF_VERSION -c https://tk.deepnote.com/constraints${PYTHON_VER}.txt
 
 # create the virtual environment in the home directory in the Dockerfile
 # using our upgraded python version
