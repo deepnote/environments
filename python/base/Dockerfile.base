@@ -4,7 +4,8 @@ FROM buildpack-deps:bullseye
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install OS dependencies
-RUN apt-get update \
+RUN set -e && \
+  apt-get update \
   && apt-get install -yq --no-install-recommends \
   build-essential \
   bzip2 \
@@ -18,14 +19,11 @@ RUN apt-get update \
   unzip \
   vim \
   wget \
-  ssh \
+  openssh-client \
   gnupg2 \
   ca-certificates \
-  # Required for Python packages that need to connect to MS SQL Server (like pymssql)
   freetds-dev \
-  # Enables Python to connect to various databases through ODBC drivers
   unixodbc-dev \
-  # Required for secure network communications (HTTPS, secure database connections)
   libssl-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
