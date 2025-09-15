@@ -30,7 +30,11 @@ ln -s /usr/bin/python3 /usr/bin/python
 
 # We need to remove some pre-installed pip packages that end up clashing with our compute-deps
 python"$PYTHON_VER" -m pip uninstall -y cryptography || true
-python"$PYTHON_VER" -m pip install numpy tensorflow==$TF_VERSION -c https://tk.deepnote.com/constraints${PYTHON_VER}.txt
+if [ "$(echo "$TF_VERSION > 2.15" | bc -l)" -eq 1 ];then
+  python"$PYTHON_VER" -m pip install numpy tensorflow[and-cuda]==$TF_VERSION -c https://tk.deepnote.com/constraints${PYTHON_VER}.txt
+else
+  python"$PYTHON_VER" -m pip install numpy tensorflow==$TF_VERSION -c https://tk.deepnote.com/constraints${PYTHON_VER}.txt
+fi
 
 # create the virtual environment in the home directory in the Dockerfile
 # using our upgraded python version
