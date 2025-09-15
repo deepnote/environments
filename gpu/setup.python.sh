@@ -1,4 +1,5 @@
 #!/bin/bash
+set -ex
 
 #
 # This script allows us to install a python version of choice
