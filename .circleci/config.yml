@@ -402,13 +402,13 @@ workflows:
 
       - build-and-push-gpu:
           name: Tensorflow 2.17, Cuda 12.3, Ubuntu 22.04
-          cuda-version: "12.3.0"
+          cuda-version: "12.3.2"
           ubuntu-version: "22.04"
           tf-version: "2.17.1"
           python-version: "3.11"
       - build-and-push-gpu:
           name: Tensorflow 2.19, Cuda 12.5, Ubuntu 24.04
-          cuda-version: "12.5.0"
+          cuda-version: "12.5.1"
           ubuntu-version: "24.04"
           tf-version: "2.19.1"
           python-version: "3.11"
