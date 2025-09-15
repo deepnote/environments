@@ -30,7 +30,9 @@ ln -s /usr/bin/python3 /usr/bin/python
 
 # We need to remove some pre-installed pip packages that end up clashing with our compute-deps
 python"$PYTHON_VER" -m pip uninstall -y cryptography || true
-if [ "$(echo "$TF_VERSION > 2.15" | bc -l)" -eq 1 ];then
+# Extract major.minor version for comparison (e.g., 2.17.2 -> 2.17)
+TF_MAJOR_MINOR=$(echo "$TF_VERSION" | cut -d. -f1-2)
+if [ "$(echo "$TF_MAJOR_MINOR >= 2.16" | bc -l)" -eq 1 ];then
   python"$PYTHON_VER" -m pip install numpy tensorflow[and-cuda]==$TF_VERSION -c https://tk.deepnote.com/constraints${PYTHON_VER}.txt
 else
   python"$PYTHON_VER" -m pip install numpy tensorflow==$TF_VERSION -c https://tk.deepnote.com/constraints${PYTHON_VER}.txt
