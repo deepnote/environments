@@ -305,7 +305,6 @@ jobs:
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
-              --build-arg CUDA_VERSION=${CUDA_VERSION} \
               --build-arg TF_VERSION=${TF_VERSION} \
               --build-arg PYTHON_VER=${PY_VERSION} \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
