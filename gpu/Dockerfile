@@ -1,6 +1,7 @@
 ARG UBUNTU_VERSION=22.04
-ARG CUDA_VERSION=12.3.0
-FROM nvidia/cuda:${CUDA_VERSION}-base-ubuntu${UBUNTU_VERSION}
+# ARG CUDA_VERSION=12.3.2
+# FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}
+FROM ubuntu:${UBUNTU_VERSION}
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/New_York
@@ -23,6 +24,16 @@ RUN apt-get update && apt-get -y dist-upgrade \
   ssh \
   gnupg2 \
   && rm -rf /var/lib/apt/lists/*
+
+# # NVIDIA environment variables for container runtime
+# ENV NVIDIA_VISIBLE_DEVICES=all
+# ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# # Add path where NVIDIA container runtime mounts driver libraries
+# ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}
+
+# # Create directory structure for NVIDIA libraries (will be mounted at runtime)
+# RUN mkdir -p /usr/local/nvidia/lib64
 
 # replace python version (optional) and
 # create the virtual environment in the home directory in the Dockerfile
