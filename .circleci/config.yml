@@ -356,14 +356,14 @@ workflows:
           tf-version: "2.15.1"
           python-version: "3.11"
       - build-and-push-gpu:
-          name: Tensorflow 2.17, Cuda 12.6, Ubuntu 24.04
-          cuda-version: "12.6.3"
+          name: Tensorflow 2.17, Cuda 12.3, Ubuntu 24.04
+          cuda-version: "12.3.0"
           ubuntu-version: "24.04"
           tf-version: "2.17.1"
           python-version: "3.11"
       - build-and-push-gpu:
-          name: Tensorflow 2.19, Cuda 12.6, Ubuntu 24.04
-          cuda-version: "12.6.3"
+          name: Tensorflow 2.19, Cuda 12.5, Ubuntu 24.04
+          cuda-version: "12.5.0"
           ubuntu-version: "24.04"
           tf-version: "2.19.1"
           python-version: "3.11"
