@@ -1,5 +1,6 @@
 ARG UBUNTU_VERSION=22.04
-FROM ubuntu:${UBUNTU_VERSION}
+ARG CUDA_VERSION=12.3.0
+FROM nvidia/cuda:${CUDA_VERSION}-base-ubuntu${UBUNTU_VERSION}
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/New_York
@@ -22,10 +23,6 @@ RUN apt-get update && apt-get -y dist-upgrade \
   ssh \
   gnupg2 \
   && rm -rf /var/lib/apt/lists/*
-
-ENV NVIDIA_VISIBLE_DEVICES=all
-ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
-ENV NVIDIA_REQUIRE_CUDA="cuda>=12.3"
 
 # replace python version (optional) and
 # create the virtual environment in the home directory in the Dockerfile
