@@ -23,6 +23,10 @@ RUN apt-get update && apt-get -y dist-upgrade \
   gnupg2 \
   && rm -rf /var/lib/apt/lists/*
 
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+ENV NVIDIA_REQUIRE_CUDA="cuda>=12.3"
+
 # replace python version (optional) and
 # create the virtual environment in the home directory in the Dockerfile
 # for performance improvement.
