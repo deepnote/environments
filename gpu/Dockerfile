@@ -21,8 +21,6 @@ RUN apt-get update && apt-get -y dist-upgrade \
   wget \
   ssh \
   gnupg2 \
-  libnvinfer8 \
-  libnvinfer-plugin8 \
   && rm -rf /var/lib/apt/lists/*
 
 # replace python version (optional) and
