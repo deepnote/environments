@@ -228,6 +228,51 @@ jobs:
               --output type=registry,push=true \
               ./ir/ir-with-libs
 
+  build-and-push-gpu-legacy:
+    machine:
+      image: ubuntu-2404:current
+    parameters:
+      cuda-version:
+        type: string
+      ubuntu-version:
+        type: string
+      tf-version:
+        type: string
+      python-version:
+        type: string
+    environment:
+      CUDA_VERSION: << parameters.cuda-version >>
+      UBUNTU_VERSION: << parameters.ubuntu-version >>
+      TF_VERSION: << parameters.tf-version >>
+      PY_VERSION: << parameters.python-version >>
+    steps:
+      - checkout
+      - docker_login
+      - setup_buildkit_builder
+      - run:
+          name: Build and push gpu legacy image
+          command: |
+            REPOSITORY="deepnote/tensorflow"
+            TAG="gpu-${TF_VERSION}-${CUDA_VERSION}-${UBUNTU_VERSION}"
+            TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
+            CUDA_BASE_IMAGE_TAG=${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}
+            docker buildx build \
+              --file=./gpu/Dockerfile.legacy \
+              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
+              --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
+              --build-arg CUDA_IMAGE_TAG=${CUDA_BASE_IMAGE_TAG} \
+              --build-arg TF_VERSION=${TF_VERSION} \
+              --build-arg PYTHON_VER=${PY_VERSION} \
+              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
+              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache \
+              --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
+              --progress plain \
+              --platform linux/amd64 \
+              --provenance=false \
+              --sbom=false \
+              --output type=registry,push=true \
+              ./gpu
+
   build-and-push-gpu:
     machine:
       image: ubuntu-2404:current
@@ -250,17 +295,16 @@ jobs:
       - docker_login
       - setup_buildkit_builder
       - run:
-          name: Build and push python image
+          name: Build and push gpu image
           command: |
             REPOSITORY="deepnote/tensorflow"
             TAG="gpu-${TF_VERSION}-${CUDA_VERSION}-${UBUNTU_VERSION}"
             TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
-            CUDA_BASE_IMAGE_TAG=${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}
             docker buildx build \
               --file=./gpu/Dockerfile \
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
-              --build-arg CUDA_IMAGE_TAG=${CUDA_BASE_IMAGE_TAG} \
+              --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
               --build-arg TF_VERSION=${TF_VERSION} \
               --build-arg PYTHON_VER=${PY_VERSION} \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
@@ -272,7 +316,6 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./gpu
-
 python-versions: &python-versions
   - "3.9"
   - "3.10"
@@ -343,51 +386,52 @@ workflows:
           requires:
             - R << matrix.r-version >>
 
-      - build-and-push-gpu:
+      - build-and-push-gpu-legacy:
           name: Tensorflow 2.15, Cuda 11.8, Ubuntu 22.04
           cuda-version: "11.8.0"
           ubuntu-version: "22.04"
           tf-version: "2.15.1"
           python-version: "3.11"
-      - build-and-push-gpu:
+      - build-and-push-gpu-legacy:
           name: Tensorflow 2.15, Cuda 12.6, Ubuntu 22.04
           cuda-version: "12.6.3"
           ubuntu-version: "22.04"
           tf-version: "2.15.1"
           python-version: "3.11"
+
       - build-and-push-gpu:
-          name: Tensorflow 2.17, Cuda 12.6, Ubuntu 24.04
-          cuda-version: "12.6.3"
-          ubuntu-version: "24.04"
+          name: Tensorflow 2.17, Cuda 12.3, Ubuntu 22.04
+          cuda-version: "12.3.2" # just used for tagging
+          ubuntu-version: "22.04"
           tf-version: "2.17.1"
           python-version: "3.11"
       - build-and-push-gpu:
-          name: Tensorflow 2.19, Cuda 12.6, Ubuntu 24.04
-          cuda-version: "12.6.3"
+          name: Tensorflow 2.19, Cuda 12.5, Ubuntu 24.04
+          cuda-version: "12.5.1" # just used for tagging
           ubuntu-version: "24.04"
           tf-version: "2.19.1"
           python-version: "3.11"
 
       # To be deprecated
-      - build-and-push-gpu:
+      - build-and-push-gpu-legacy:
           name: Tensorflow 2.9, Cuda 12.6, Ubuntu 20.04
           cuda-version: "12.6.3"
           ubuntu-version: "20.04"
           tf-version: "2.9.1"
           python-version: "3.10"
-      - build-and-push-gpu:
+      - build-and-push-gpu-legacy:
           name: Tensorflow 2.11, Cuda 12.6, Ubuntu 20.04
           cuda-version: "12.6.3"
           ubuntu-version: "20.04"
           tf-version: "2.11.1"
           python-version: "3.10"
-      - build-and-push-gpu:
+      - build-and-push-gpu-legacy:
           name: Tensorflow 2.9, Cuda 11.8, Ubuntu 20.04
           cuda-version: "11.8.0"
           ubuntu-version: "20.04"
           tf-version: "2.9.1"
           python-version: "3.10"
-      - build-and-push-gpu:
+      - build-and-push-gpu-legacy:
           name: Tensorflow 2.11, Cuda 11.8, Ubuntu 20.04
           cuda-version: "11.8.0"
           ubuntu-version: "20.04"
