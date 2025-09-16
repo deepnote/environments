@@ -388,7 +388,7 @@ workflows:
 
       - build-and-push-gpu:
           name: Tensorflow 2.15, Cuda 12.2, Ubuntu 22.04
-          cuda-version: "12.2.2" # TODO double check this
+          cuda-version: "12.2.2" # just used for tagging
           ubuntu-version: "22.04"
           tf-version: "2.15.1"
           python-version: "3.11"
