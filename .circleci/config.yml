@@ -45,11 +45,8 @@ jobs:
               --file=./python/base/Dockerfile.base \
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
-              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
-              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache \
-              --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
               --progress plain \
-              --platform linux/amd64 \
+              --platform linux/amd64,linux/arm64 \
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
@@ -69,6 +66,7 @@ jobs:
       - setup_buildkit_builder
       - run:
           name: Build and push python image
+          no_output_timeout: 60m  # building Python can take a while, default timeout is 10m
           command: |
             REPOSITORY="deepnote/python"
             TAG="${PYTHON_VERSION}"
@@ -79,11 +77,8 @@ jobs:
               --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
-              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
-              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache \
-              --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
               --progress plain \
-              --platform linux/amd64 \
+              --platform linux/amd64,linux/arm64 \
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
@@ -113,11 +108,8 @@ jobs:
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
               --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
-              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
-              --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache \
-              --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
               --progress plain \
-              --platform linux/amd64 \
+              --platform linux/amd64,linux/arm64 \
               --provenance=false \
               --sbom=false \
               --output type=registry,push=true \
