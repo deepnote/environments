@@ -1,7 +1,6 @@
 version: 2.1
 
 orbs:
-  aws-cli: circleci/aws-cli@5.1.1
   docker: circleci/docker@2.8
 
 commands:
@@ -16,17 +15,10 @@ commands:
               --driver docker-container \
   docker_login:
     steps:
-      - aws-cli/setup:
-          role_arn: arn:aws:iam::978928340082:role/CircleCI
-          profile_name: production
-          role_session_name: "circleci-session"
-          session_duration: "1800"
       - run:
           name: Docker and ECR login
           command: |
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            aws ecr get-login-password --region us-east-1 --profile production | \
-              docker login --username AWS --password-stdin 978928340082.dkr.ecr.us-east-1.amazonaws.com
 jobs:
   build-and-push-base:
     machine:
@@ -43,7 +35,6 @@ jobs:
             TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./python/base/Dockerfile.base \
-              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache \
@@ -76,7 +67,6 @@ jobs:
 
             docker buildx build \
               --file=./python/python/Dockerfile.python${PYTHON_VERSION} \
-              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
@@ -109,7 +99,6 @@ jobs:
             TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./python/datascience/Dockerfile.datascience \
-              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
               --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
@@ -143,7 +132,6 @@ jobs:
             TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./python/conda/Dockerfile.conda \
-              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
               --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
@@ -180,7 +168,6 @@ jobs:
             TAG="${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./ir/ir-base/Dockerfile.ir \
-              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG} \
               --tag=docker.io/${REPOSITORY}:${TAG} \
               --build-arg R_VERSION=${R_VERSION} \
               --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
@@ -215,7 +202,6 @@ jobs:
             TAG="${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./ir/ir-with-libs/Dockerfile.ir \
-              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG} \
               --tag=docker.io/${REPOSITORY}:${TAG} \
               --build-arg R_VERSION=${R_VERSION} \
               --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
@@ -258,7 +244,6 @@ jobs:
             CUDA_BASE_IMAGE_TAG=${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}
             docker buildx build \
               --file=./gpu/Dockerfile.legacy \
-              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --build-arg CUDA_IMAGE_TAG=${CUDA_BASE_IMAGE_TAG} \
               --build-arg TF_VERSION=${TF_VERSION} \
@@ -296,7 +281,6 @@ jobs:
             TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./gpu/Dockerfile \
-              --tag=978928340082.dkr.ecr.us-east-1.amazonaws.com/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --build-arg TF_VERSION=${TF_VERSION} \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
