@@ -1,11 +1,9 @@
-ARG UBUNTU_VERSION=22.04
-FROM ubuntu:${UBUNTU_VERSION}
-
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=America/New_York
+ARG TF_VERSION=2.17.0
+FROM tensorflow/tensorflow:${TF_VERSION}-gpu
 
 # Install OS dependencies
-RUN apt-get update && apt-get -y dist-upgrade \
+RUN set -e && \
+  apt-get update \
   && apt-get install -yq --no-install-recommends \
   build-essential \
   bzip2 \
@@ -19,17 +17,22 @@ RUN apt-get update && apt-get -y dist-upgrade \
   unzip \
   vim \
   wget \
-  ssh \
+  openssh-client \
   gnupg2 \
+  ca-certificates \
+  freetds-dev \
+  unixodbc-dev \
+  libssl-dev \
+  && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+ENV SHELL=/bin/bash \
+  LC_ALL=en_US.UTF-8 \
+  LANG=en_US.UTF-8 \
+  LANGUAGE=en_US.UTF-8 \
+  DEEPNOTE_PYTHON_KERNEL_ONLY=true
 
+RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+locale-gen
 
-# replace python version (optional) and
-# create the virtual environment in the home directory in the Dockerfile
-# for performance improvement.
-ARG PYTHON_VER
-ARG TF_VERSION
-ADD ./setup.python.sh /tmp/setup.python.sh
-RUN bash /tmp/setup.python.sh ${PYTHON_VER} ${TF_VERSION}; rm -v /tmp/setup.python.sh
-
-ENV DEEPNOTE_PYTHON_KERNEL_ONLY=true
+# Create virtual environment
+RUN python -m venv --system-site-packages ~/venv
