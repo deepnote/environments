@@ -37,7 +37,7 @@ locale-gen
 # Create virtual environment
 RUN python -m venv --system-site-packages ~/venv
 
-ARG TF_VERSION=2.17.0
+ARG TF_VERSION
 ENV TF_VERSION=${TF_VERSION}
 # fixes issues with the base image not having correct cudnn version
 # https://github.com/tensorflow/tensorflow/issues/80538#issuecomment-2645907707
