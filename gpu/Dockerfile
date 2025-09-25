@@ -52,4 +52,4 @@ RUN set -ex && \
   fi
 
 # Prevent breaking changes with numpy
-RUN pip install --no-cache-dir numpy==1.26.4 -c https://tk.deepnote.com/constraints3.11.txt
+RUN pip install --no-cache-dir numpy -c https://tk.deepnote.com/constraints3.11.txt
