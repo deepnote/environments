@@ -36,3 +36,6 @@ locale-gen
 
 # Create virtual environment
 RUN python -m venv --system-site-packages ~/venv
+
+# Prevent breaking changes with numpy
+RUN pip install --no-cache-dir numpy==1.26.4 -c https://tk.deepnote.com/constraints3.11.txt
