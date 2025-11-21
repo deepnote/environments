@@ -44,7 +44,7 @@ commands:
       - run:
           name: Setup SOCI
           command: |
-            set -euxo pipefail
+            set -euo pipefail
 
             SOCI_VERSION=0.11.1
             curl -L -o "soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz" \
@@ -59,7 +59,7 @@ commands:
       - run:
           name: Convert and push SOCI v2 image
           command: |
-            set -euxo pipefail
+            set -euo pipefail
           
             SRC_IMAGE="docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}"
             DST_IMAGE="${SRC_IMAGE}-soci-v2"
@@ -68,13 +68,16 @@ commands:
             echo "SOCI v2 image tag: ${DST_IMAGE}"
             echo "Docker config:     ${DOCKER_CONFIG}"
 
-            sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl pull "$SRC_IMAGE" --quiet
+            sudo nerdctl pull "$SRC_IMAGE" --quiet
 
-            sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl image convert \
+            sudo nerdctl image convert \
               --soci \
               "$SRC_IMAGE" "$DST_IMAGE"
 
+            # pass Docker config to allow pushing (see `docker_login` command)
             sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl push "$DST_IMAGE" --quiet
+          
+            soci index inspect "$DST_IMAGE"
 
 
 jobs:
