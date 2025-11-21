@@ -40,7 +40,7 @@ commands:
             curl -L "https://github.com/containerd/nerdctl/releases/download/v${NERDCTL_VERSION}/nerdctl-${NERDCTL_VERSION}-linux-amd64.tar.gz" \
               | sudo tar -C /usr/local/bin -xz nerdctl
 
-            nerdctl version
+            sudo nerdctl version
   convert_image_to_soci_v2:
     steps:
       - run:
@@ -55,13 +55,13 @@ commands:
             echo "SOCI v2 image tag: ${DST_IMAGE}"
             echo "Docker config:     ${DOCKER_CONFIG}"
 
-            nerdctl pull "$SRC_IMAGE"
+            sudo nerdctl pull "$SRC_IMAGE"
 
-            nerdctl image convert \
+            sudo nerdctl image convert \
               --soci \
               "$SRC_IMAGE" "$DST_IMAGE"
 
-            # nerdctl push "$DST_IMAGE"
+            # sudo nerdctl push "$DST_IMAGE"
 
 
 jobs:
