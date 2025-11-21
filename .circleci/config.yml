@@ -81,7 +81,8 @@ commands:
             sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl push "$DST_IMAGE" --quiet
           
             echo "Listing SOCI indexes..."
-            soci index list
+            sudo soci index list
+            sudo soci index info "$DST_IMAGE"
 
 
 jobs:
