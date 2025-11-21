@@ -19,6 +19,25 @@ commands:
           name: Docker and ECR login
           command: |
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+  setup_containerd_nerdctl:
+    steps:
+      - run:
+          name: Setup containerd and nerdctl
+          command: |
+            set -euxo pipefail
+
+            sudo apt-get update
+            sudo apt-get install -y containerd
+
+            sudo systemctl enable --now containerd
+
+            NERDCTL_VERSION=2.2.0
+            curl -L "https://github.com/containerd/nerdctl/releases/download/v${NERDCTL_VERSION}/nerdctl-${NERDCTL_VERSION}-linux-amd64.tar.gz" \
+              | sudo tar -C /usr/local/bin -xz nerdctl
+
+            nerdctl version
+            sudo systemctl status containerd --no-pager || true
+
 jobs:
   build-and-push-base:
     machine:
@@ -27,6 +46,7 @@ jobs:
       - checkout
       - docker_login
       - setup_buildkit_builder
+      - setup_containerd_nerdctl
       - run:
           name: Build and push base image
           command: |
