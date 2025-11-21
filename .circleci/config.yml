@@ -29,7 +29,7 @@ commands:
               echo 'export TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"'
               echo 'export DOCKER_CONFIG="${DOCKER_CONFIG:-/home/circleci/.docker}"'
             } >> "$BASH_ENV"
-  setup_nerdctl:
+  setup_soci:
     steps:
       - run:
           name: Setup nerdctl
@@ -41,6 +41,19 @@ commands:
               | sudo tar -C /usr/local/bin -xz nerdctl
 
             sudo nerdctl version
+      - run:
+          name: Setup SOCI
+          command: |
+            set -euxo pipefail
+
+            SOCI_VERSION=0.11.1
+            curl -L -o "soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz" \
+              "https://github.com/awslabs/soci-snapshotter/releases/download/v${SOCI_VERSION}/soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz"
+
+            sudo tar -C /usr/local/bin -xvf "soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz" soci soci-snapshotter-grpc
+            rm "soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz"
+          
+            soci --help
   convert_image_to_soci_v2:
     steps:
       - run:
@@ -55,7 +68,7 @@ commands:
             echo "SOCI v2 image tag: ${DST_IMAGE}"
             echo "Docker config:     ${DOCKER_CONFIG}"
 
-            sudo nerdctl pull "$SRC_IMAGE"
+            sudo nerdctl pull "$SRC_IMAGE" --quiet
 
             sudo nerdctl image convert \
               --soci \
@@ -75,7 +88,7 @@ jobs:
       - checkout
       - docker_login
       - setup_buildkit_builder
-      - setup_nerdctl
+      - setup_soci
       - prepare_environment
       - run:
           name: Build and push base image
