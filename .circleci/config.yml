@@ -68,16 +68,20 @@ commands:
             echo "SOCI v2 image tag: ${DST_IMAGE}"
             echo "Docker config:     ${DOCKER_CONFIG}"
 
+            echo "Pulling source image from ${SRC_IMAGE}..."
             sudo nerdctl pull "$SRC_IMAGE" --quiet
 
+            echo "Converting image to SOCI v2..."
             sudo nerdctl image convert \
               --soci \
               "$SRC_IMAGE" "$DST_IMAGE"
 
             # pass Docker config to allow pushing (see `docker_login` command)
+            echo "Pushing SOCI v2 image to ${DST_IMAGE}..."
             sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl push "$DST_IMAGE" --quiet
           
-            soci index inspect "$DST_IMAGE"
+            echo "Listing SOCI indexes..."
+            soci index list
 
 
 jobs:
