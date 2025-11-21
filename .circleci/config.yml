@@ -68,13 +68,13 @@ commands:
             echo "SOCI v2 image tag: ${DST_IMAGE}"
             echo "Docker config:     ${DOCKER_CONFIG}"
 
-            sudo nerdctl pull "$SRC_IMAGE" --quiet
+            sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl pull "$SRC_IMAGE" --quiet
 
-            sudo nerdctl image convert \
+            sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl image convert \
               --soci \
               "$SRC_IMAGE" "$DST_IMAGE"
 
-            sudo nerdctl push "$DST_IMAGE"
+            sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl push "$DST_IMAGE" --quiet
 
 
 jobs:
