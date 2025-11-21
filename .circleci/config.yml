@@ -57,7 +57,7 @@ commands:
   convert_image_to_soci_v2:
     steps:
       - run:
-          name: Convert image to SOCI v2
+          name: Convert and push SOCI v2 image
           command: |
             set -euxo pipefail
           
@@ -74,7 +74,7 @@ commands:
               --soci \
               "$SRC_IMAGE" "$DST_IMAGE"
 
-            # sudo nerdctl push "$DST_IMAGE"
+            sudo nerdctl push "$DST_IMAGE"
 
 
 jobs:
