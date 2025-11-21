@@ -19,10 +19,20 @@ commands:
           name: Docker and ECR login
           command: |
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-  setup_containerd_nerdctl:
+  prepare_environment:
     steps:
       - run:
-          name: Setup containerd and nerdctl
+          name: Prepare environment variables
+          command: |
+            set -euxo pipefail
+            {
+              echo 'export TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"'
+              echo 'export DOCKER_CONFIG="${DOCKER_CONFIG:-/home/circleci/.docker}"'
+            } >> "$BASH_ENV"
+  setup_nerdctl:
+    steps:
+      - run:
+          name: Setup nerdctl
           command: |
             set -euxo pipefail
 
@@ -31,22 +41,45 @@ commands:
               | sudo tar -C /usr/local/bin -xz nerdctl
 
             nerdctl version
+  convert_image_to_soci_v2:
+    steps:
+      - run:
+          name: Convert image to SOCI v2
+          command: |
+            set -euxo pipefail
+          
+            SRC_IMAGE="docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}"
+            DST_IMAGE="${SRC_IMAGE}-soci-v2"
+
+            echo "Source image:      ${SRC_IMAGE}"
+            echo "SOCI v2 image tag: ${DST_IMAGE}"
+            echo "Docker config:     ${DOCKER_CONFIG}"
+
+            nerdctl pull "$SRC_IMAGE"
+
+            nerdctl image convert \
+              --soci \
+              "$SRC_IMAGE" "$DST_IMAGE"
+
+            # nerdctl push "$DST_IMAGE"
+
 
 jobs:
   build-and-push-base:
     machine:
       image: ubuntu-2404:current
+    environment:
+      REPOSITORY: "deepnote/python"
+      TAG: "base"
     steps:
       - checkout
       - docker_login
       - setup_buildkit_builder
-      - setup_containerd_nerdctl
+      - setup_nerdctl
+      - prepare_environment
       - run:
           name: Build and push base image
           command: |
-            REPOSITORY="deepnote/python"
-            TAG="base"
-            TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./python/base/Dockerfile.base \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
@@ -59,6 +92,7 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./python/base
+      - convert_image_to_soci_v2
 
   build-and-push-python:
     machine:
