@@ -207,16 +207,23 @@ jobs:
         type: string
     environment:
       PYTHON_VERSION: << parameters.python-version >>
+      REPOSITORY: "deepnote/python"
     steps:
       - checkout
       - docker_login
       - setup_buildkit_builder
+      - prepare_environment
+      - setup_soci
+      - run:
+          name: Prepare environment variables
+          command: |
+            set -euxo pipefail
+            {
+              echo 'export TAG="${PYTHON_VERSION}-datascience"'
+            } >> "$BASH_ENV"
       - run:
           name: Build and push python-datascience image
           command: |
-            REPOSITORY="deepnote/python"
-            TAG="${PYTHON_VERSION}-datascience"
-            TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./python/datascience/Dockerfile.datascience \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
@@ -231,6 +238,9 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./python/datascience
+      - convert_image_to_soci_v2
+      - convert_image_to_estargz
+      - convert_image_to_zstd_chunked
 
   build-and-push-python-conda:
     machine:
