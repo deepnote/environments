@@ -29,7 +29,7 @@ commands:
               echo 'export TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"'
               echo 'export DOCKER_CONFIG="${DOCKER_CONFIG:-/home/circleci/.docker}"'
             } >> "$BASH_ENV"
-  setup_soci:
+  setup_image_conversion:
     steps:
       - run:
           name: Setup nerdctl
@@ -54,10 +54,19 @@ commands:
             rm "soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz"
           
             soci --help
+      - run:
+          # containerd can use faster gzip implementations (pigz, igzip)
+          name: Setup compression tools
+          command: |
+            set -euo pipefail
+
+            apt-get update
+            apt-get install -y --no-install-recommends pigz
   convert_image_to_soci_v2:
     steps:
       - run:
           name: Convert and push SOCI v2 image
+          no_output_timeout: 30m
           command: |
             set -euo pipefail
           
@@ -86,6 +95,7 @@ commands:
     steps:
       - run:
           name: Convert and push eStargz image
+          no_output_timeout: 60m
           command: |
             set -euo pipefail
           
@@ -111,6 +121,7 @@ commands:
     steps:
       - run:
           name: Convert and push zstd-chunked image
+          no_output_timeout: 60m
           command: |
             set -euo pipefail
           
@@ -209,7 +220,7 @@ jobs:
       - docker_login
       - setup_buildkit_builder
       - prepare_environment
-      - setup_soci
+      - setup_image_conversion
       - run:
           name: Prepare environment variables
           command: |
