@@ -145,7 +145,6 @@ jobs:
       - checkout
       - docker_login
       - setup_buildkit_builder
-      - setup_soci
       - prepare_environment
       - run:
           name: Build and push base image
@@ -162,9 +161,6 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./python/base
-      - convert_image_to_soci_v2
-      - convert_image_to_estargz
-      - convert_image_to_zstd_chunked
 
   build-and-push-python:
     machine:
