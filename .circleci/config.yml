@@ -91,59 +91,6 @@ commands:
           
             echo "Listing SOCI indexes..."
             sudo soci index list
-  convert_image_to_estargz:
-    steps:
-      - run:
-          name: Convert and push eStargz image
-          no_output_timeout: 60m
-          command: |
-            set -euo pipefail
-          
-            SRC_IMAGE="docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}"
-            DST_IMAGE="${SRC_IMAGE}-esgz"
-
-            echo "Source image:      ${SRC_IMAGE}"
-            echo "eStargz image tag: ${DST_IMAGE}"
-            echo "Docker config:     ${DOCKER_CONFIG}"
-
-            echo "Pulling source image from ${SRC_IMAGE}..."
-            sudo nerdctl pull "$SRC_IMAGE" --quiet
-
-            echo "Converting image to eStargz..."
-            sudo nerdctl image convert \
-              --estargz --oci \
-              "$SRC_IMAGE" "$DST_IMAGE"
-
-            # pass Docker config to allow pushing (see `docker_login` command)
-            echo "Pushing eStargz image to ${DST_IMAGE}..."
-            sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl push "$DST_IMAGE" --quiet
-  convert_image_to_zstd_chunked:
-    steps:
-      - run:
-          name: Convert and push zstd-chunked image
-          no_output_timeout: 60m
-          command: |
-            set -euo pipefail
-          
-            SRC_IMAGE="docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}"
-            DST_IMAGE="${SRC_IMAGE}-zstd"
-
-            echo "Source image:           ${SRC_IMAGE}"
-            echo "zstd-chunked image tag: ${DST_IMAGE}"
-            echo "Docker config:          ${DOCKER_CONFIG}"
-
-            echo "Pulling source image from ${SRC_IMAGE}..."
-            sudo nerdctl pull "$SRC_IMAGE" --quiet
-
-            echo "Converting image to zstd-chunked..."
-            sudo nerdctl image convert \
-              --zstdchunked --oci \
-              "$SRC_IMAGE" "$DST_IMAGE"
-
-            # pass Docker config to allow pushing (see `docker_login` command)
-            echo "Pushing zstd-chunked image to ${DST_IMAGE}..."
-            sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl push "$DST_IMAGE" --quiet
-
 
 jobs:
   build-and-push-base:
@@ -181,17 +128,23 @@ jobs:
         type: string
     environment:
       PYTHON_VERSION: << parameters.python-version >>
+      REPOSITORY: "deepnote/python"
     steps:
       - checkout
       - docker_login
       - setup_buildkit_builder
+      - prepare_environment
+      - setup_image_conversion
+      - run:
+          name: Prepare environment variables
+          command: |
+            set -euxo pipefail
+            {
+              echo 'export TAG="${PYTHON_VERSION}"'
+            } >> "$BASH_ENV"
       - run:
           name: Build and push python image
           command: |
-            REPOSITORY="deepnote/python"
-            TAG="${PYTHON_VERSION}"
-            TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
-
             docker buildx build \
               --file=./python/python/Dockerfile.python${PYTHON_VERSION} \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
@@ -205,6 +158,7 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./python/python
+      - convert_image_to_soci_v2
 
   build-and-push-python-datascience:
     machine:
@@ -246,8 +200,6 @@ jobs:
               --output type=registry,push=true \
               ./python/datascience
       - convert_image_to_soci_v2
-      - convert_image_to_estargz
-      - convert_image_to_zstd_chunked
 
   build-and-push-python-conda:
     machine:
@@ -257,16 +209,23 @@ jobs:
         type: string
     environment:
       PYTHON_VERSION: << parameters.python-version >>
+      REPOSITORY: "deepnote/python"
     steps:
       - checkout
       - docker_login
       - setup_buildkit_builder
+      - prepare_environment
+      - setup_image_conversion
+      - run:
+          name: Prepare environment variables
+          command: |
+            set -euxo pipefail
+            {
+              echo 'export TAG="${PYTHON_VERSION}-conda"'
+            } >> "$BASH_ENV"
       - run:
           name: Build and push python-conda image
           command: |
-            REPOSITORY="deepnote/python"
-            TAG="${PYTHON_VERSION}-conda"
-            TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./python/conda/Dockerfile.conda \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
@@ -281,6 +240,7 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./python/conda
+      - convert_image_to_soci_v2
 
   build-and-push-ir:
     machine:
@@ -294,15 +254,23 @@ jobs:
     environment:
       R_VERSION: << parameters.r-version >>
       PYTHON_VERSION: << parameters.python-version >>
+      REPOSITORY: "deepnote/ir"
     steps:
       - checkout
       - docker_login
       - setup_buildkit_builder
+      - prepare_environment
+      - setup_image_conversion
+      - run:
+          name: Prepare environment variables
+          command: |
+            set -euxo pipefail
+            {
+              echo 'export TAG="${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"'
+            } >> "$BASH_ENV"
       - run:
           name: Build and push ir image
           command: |
-            REPOSITORY="deepnote/ir"
-            TAG="${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./ir/ir-base/Dockerfile.ir \
               --tag=docker.io/${REPOSITORY}:${TAG} \
@@ -316,6 +284,8 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./ir/ir-base
+      - convert_image_to_soci_v2
+
   build-and-push-ir-with-libs:
     machine:
       image: ubuntu-2404:current
@@ -328,15 +298,23 @@ jobs:
     environment:
       R_VERSION: << parameters.r-version >>
       PYTHON_VERSION: << parameters.python-version >>
+      REPOSITORY: "deepnote/ir-with-libs"
     steps:
       - checkout
       - docker_login
       - setup_buildkit_builder
+      - prepare_environment
+      - setup_image_conversion
+      - run:
+          name: Prepare environment variables
+          command: |
+            set -euxo pipefail
+            {
+              echo 'export TAG="${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"'
+            } >> "$BASH_ENV"
       - run:
           name: Build and push ir with datascience libraries
           command: |
-            REPOSITORY="deepnote/ir-with-libs"
-            TAG="${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./ir/ir-with-libs/Dockerfile.ir \
               --tag=docker.io/${REPOSITORY}:${TAG} \
@@ -350,6 +328,7 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./ir/ir-with-libs
+      - convert_image_to_soci_v2
 
   build-and-push-gpu-legacy:
     machine:
@@ -368,17 +347,24 @@ jobs:
       UBUNTU_VERSION: << parameters.ubuntu-version >>
       TF_VERSION: << parameters.tf-version >>
       PY_VERSION: << parameters.python-version >>
+      REPOSITORY: "deepnote/tensorflow"
     steps:
       - checkout
       - docker_login
       - setup_buildkit_builder
+      - prepare_environment
+      - setup_image_conversion
+      - run:
+          name: Prepare environment variables
+          command: |
+            set -euxo pipefail
+            {
+              echo 'export TAG="gpu-${TF_VERSION}-${CUDA_VERSION}-${UBUNTU_VERSION}"'
+              echo 'export CUDA_BASE_IMAGE_TAG="${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}"'
+            } >> "$BASH_ENV"
       - run:
           name: Build and push gpu legacy image
           command: |
-            REPOSITORY="deepnote/tensorflow"
-            TAG="gpu-${TF_VERSION}-${CUDA_VERSION}-${UBUNTU_VERSION}"
-            TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
-            CUDA_BASE_IMAGE_TAG=${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}
             docker buildx build \
               --file=./gpu/Dockerfile.legacy \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
@@ -394,6 +380,7 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./gpu
+      - convert_image_to_soci_v2
 
   build-and-push-gpu:
     machine:
@@ -406,16 +393,23 @@ jobs:
       UBUNTU_VERSION: "22.04"
       TF_VERSION: << parameters.tf-version >>
       PY_VERSION: "3.11"
+      REPOSITORY: "deepnote/tensorflow"
     steps:
       - checkout
       - docker_login
       - setup_buildkit_builder
+      - prepare_environment
+      - setup_image_conversion
+      - run:
+          name: Prepare environment variables
+          command: |
+            set -euxo pipefail
+            {
+              echo 'export TAG="gpu-${TF_VERSION}-${CUDA_VERSION}-${UBUNTU_VERSION}"'
+            } >> "$BASH_ENV"
       - run:
           name: Build and push gpu image
           command: |
-            REPOSITORY="deepnote/tensorflow"
-            TAG="gpu-${TF_VERSION}-${CUDA_VERSION}-${UBUNTU_VERSION}"
-            TAG_SUFFIX="${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}"
             docker buildx build \
               --file=./gpu/Dockerfile \
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
@@ -429,6 +423,8 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./gpu
+      - convert_image_to_soci_v2
+
 python-versions: &python-versions
   - "3.9"
   - "3.10"
