@@ -44,7 +44,7 @@ commands:
       - run:
           name: Setup SOCI
           command: |
-            set -euo pipefail
+            set -euxo pipefail
 
             SOCI_VERSION=0.11.1
             curl -L -o "soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz" \
@@ -58,7 +58,7 @@ commands:
           # containerd can use faster gzip implementations (pigz, igzip)
           name: Setup compression tools
           command: |
-            set -euo pipefail
+            set -euxo pipefail
 
             sudo apt-get update
             sudo apt-get install -y --no-install-recommends pigz
@@ -68,7 +68,7 @@ commands:
           name: Convert and push SOCI v2 image
           no_output_timeout: 30m
           command: |
-            set -euo pipefail
+            set -euxo pipefail
           
             SRC_IMAGE="docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}"
             DST_IMAGE="${SRC_IMAGE}-soci"
