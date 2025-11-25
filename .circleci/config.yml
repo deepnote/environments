@@ -3,6 +3,10 @@ version: 2.1
 orbs:
   docker: circleci/docker@2.8
 
+tool-versions: &tool-versions
+  NERDCTL_VERSION: "2.2.0"
+  SOCI_VERSION: "0.11.1"
+
 commands:
   setup_buildkit_builder:
     steps:
@@ -33,25 +37,32 @@ commands:
     steps:
       - run:
           name: Setup nerdctl
+          environment:
+            <<: *tool-versions
           command: |
             set -euxo pipefail
 
-            NERDCTL_VERSION=2.2.0
             curl -L "https://github.com/containerd/nerdctl/releases/download/v${NERDCTL_VERSION}/nerdctl-${NERDCTL_VERSION}-linux-amd64.tar.gz" \
               | sudo tar -C /usr/local/bin -xz nerdctl
 
             sudo nerdctl version
       - run:
           name: Setup SOCI
+          environment:
+            <<: *tool-versions
           command: |
             set -euxo pipefail
 
-            SOCI_VERSION=0.11.1
-            curl -L -o "soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz" \
-              "https://github.com/awslabs/soci-snapshotter/releases/download/v${SOCI_VERSION}/soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz"
+            SOCI_TARBALL="soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz"
+            SOCI_BASE_URL="https://github.com/awslabs/soci-snapshotter/releases/download/v${SOCI_VERSION}"
 
-            sudo tar -C /usr/local/bin -xvf "soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz" soci soci-snapshotter-grpc
-            rm "soci-snapshotter-${SOCI_VERSION}-linux-amd64.tar.gz"
+            curl -L -o "${SOCI_TARBALL}" "${SOCI_BASE_URL}/${SOCI_TARBALL}"
+
+            curl -L -o "${SOCI_TARBALL}.sha256sum" "${SOCI_BASE_URL}/${SOCI_TARBALL}.sha256sum"
+            sha256sum -c "${SOCI_TARBALL}.sha256sum"
+
+            sudo tar -C /usr/local/bin -xvf "${SOCI_TARBALL}" soci soci-snapshotter-grpc
+            rm "${SOCI_TARBALL}" "${SOCI_TARBALL}.sha256sum"
           
             soci --help
       - run:
