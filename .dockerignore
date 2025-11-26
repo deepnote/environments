@@ -1,0 +1,7 @@
+# CI/CD and development tools
+.circleci
+.vscode
+
+# Git
+.git
+.gitignore
