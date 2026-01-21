@@ -96,7 +96,7 @@ commands:
 
             # pass Docker config to allow pushing (see `docker_login` command)
             echo "Pushing SOCI v1 image to ${DST_IMAGE}..."
-            sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl push \
+            sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl push --debug \
               --snapshotter=soci \
               "$DST_IMAGE" --quiet
           
