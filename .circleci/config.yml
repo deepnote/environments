@@ -98,7 +98,7 @@ commands:
             sudo soci create "$DST_IMAGE"
 
             echo "Pushing SOCI v1 index to registry..."
-            sudo soci push --user "$DOCKER_LOGIN:$DOCKER_PASSWORD" $DST_IMAGE"
+            sudo soci push --user "$DOCKER_LOGIN:$DOCKER_PASSWORD" "$DST_IMAGE"
           
             echo "Listing SOCI indexes..."
             sudo soci index list
