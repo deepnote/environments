@@ -317,7 +317,7 @@ jobs:
             } >> "$BASH_ENV"
       - run:
           name: Build and push ir image
-          no_output_timeout: 30m
+          no_output_timeout: 60m
           command: |
             docker buildx build \
               --file=./ir/ir-base/Dockerfile.ir \
@@ -339,12 +339,13 @@ jobs:
   build-and-push-ir-with-libs:
     machine:
       image: ubuntu-2404:current
+      resource_class: large
     parameters:
       r-version:
         type: string
       python-version:
         type: string
-        default: "3.9"
+        default: "3.10"
     environment:
       R_VERSION: << parameters.r-version >>
       PYTHON_VERSION: << parameters.python-version >>
@@ -364,7 +365,7 @@ jobs:
             } >> "$BASH_ENV"
       - run:
           name: Build and push ir with datascience libraries
-          no_output_timeout: 30m
+          no_output_timeout: 60m
           command: |
             docker buildx build \
               --file=./ir/ir-with-libs/Dockerfile.ir \
