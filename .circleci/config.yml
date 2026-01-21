@@ -76,7 +76,7 @@ commands:
   retag_soci_v1:
     steps:
       - run:
-          name: Retag image and push SOCI v1 manifest
+          name: Retag image and push SOCI v1 index
           no_output_timeout: 30m
           command: |
             set -euxo pipefail
@@ -94,11 +94,11 @@ commands:
             echo "Tagging image as ${DST_IMAGE}..."
             sudo nerdctl tag "$SRC_IMAGE" "$DST_IMAGE"
 
-            # pass Docker config to allow pushing (see `docker_login` command)
-            echo "Pushing SOCI v1 image to ${DST_IMAGE}..."
-            sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl push --debug \
-              --snapshotter=soci \
-              "$DST_IMAGE" --quiet
+            echo "Creating SOCI v1 index..."
+            sudo soci create "$DST_IMAGE"
+
+            echo "Pushing SOCI v1 index to registry..."
+            sudo soci push --user "$DOCKER_LOGIN:$DOCKER_PASSWORD" $DST_IMAGE"
           
             echo "Listing SOCI indexes..."
             sudo soci index list
