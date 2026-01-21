@@ -73,7 +73,37 @@ commands:
 
             sudo apt-get update
             sudo apt-get install -y --no-install-recommends pigz
-  convert_image_to_soci_v2:
+  retag_soci_v1:
+    steps:
+      - run:
+          name: Retag image and push SOCI v1 manifest
+          no_output_timeout: 30m
+          command: |
+            set -euxo pipefail
+          
+            SRC_IMAGE="docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}"
+            DST_IMAGE="${SRC_IMAGE}-sociv1"
+
+            echo "Source image:      ${SRC_IMAGE}"
+            echo "SOCI v1 image tag: ${DST_IMAGE}"
+            echo "Docker config:     ${DOCKER_CONFIG}"
+
+            echo "Pulling source image from ${SRC_IMAGE}..."
+            sudo nerdctl pull "$SRC_IMAGE" --quiet
+
+            echo "Tagging image as ${DST_IMAGE}..."
+            sudo nerdctl tag "$SRC_IMAGE" "$DST_IMAGE"
+
+            # pass Docker config to allow pushing (see `docker_login` command)
+            echo "Pushing SOCI v1 image to ${DST_IMAGE}..."
+            sudo env "DOCKER_CONFIG=${DOCKER_CONFIG}" nerdctl push \
+              --snapshotter=soci \
+              "$DST_IMAGE" --quiet
+          
+            echo "Listing SOCI indexes..."
+            sudo soci index list
+
+  convert_and_push_soci_v2:
     steps:
       - run:
           name: Convert and push SOCI v2 image
@@ -82,7 +112,7 @@ commands:
             set -euxo pipefail
           
             SRC_IMAGE="docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}"
-            DST_IMAGE="${SRC_IMAGE}-soci"
+            DST_IMAGE="${SRC_IMAGE}-sociv2"
 
             echo "Source image:      ${SRC_IMAGE}"
             echo "SOCI v2 image tag: ${DST_IMAGE}"
@@ -169,7 +199,8 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./python/python
-      - convert_image_to_soci_v2
+      - retag_soci_v1
+      - convert_and_push_soci_v2
 
   build-and-push-python-datascience:
     machine:
@@ -210,7 +241,8 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./python/datascience
-      - convert_image_to_soci_v2
+      - retag_soci_v1
+      - convert_and_push_soci_v2
 
   build-and-push-python-conda:
     machine:
@@ -251,7 +283,8 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./python/conda
-      - convert_image_to_soci_v2
+      - retag_soci_v1
+      - convert_and_push_soci_v2
 
   build-and-push-ir:
     machine:
@@ -296,7 +329,8 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./ir/ir-base
-      - convert_image_to_soci_v2
+      - retag_soci_v1
+      - convert_and_push_soci_v2
 
   build-and-push-ir-with-libs:
     machine:
@@ -341,7 +375,8 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./ir/ir-with-libs
-      - convert_image_to_soci_v2
+      - retag_soci_v1
+      - convert_and_push_soci_v2
 
   build-and-push-gpu-legacy:
     machine:
@@ -393,7 +428,8 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./gpu
-      - convert_image_to_soci_v2
+      - retag_soci_v1
+      - convert_and_push_soci_v2
 
   build-and-push-gpu:
     machine:
@@ -436,7 +472,8 @@ jobs:
               --sbom=false \
               --output type=registry,push=true \
               ./gpu
-      - convert_image_to_soci_v2
+      - retag_soci_v1
+      - convert_and_push_soci_v2
 
 python-versions: &python-versions
   - "3.9"
