@@ -261,7 +261,7 @@ jobs:
         type: string
       python-version:
         type: string
-        default: "3.9"
+        default: "3.10"
     environment:
       R_VERSION: << parameters.r-version >>
       PYTHON_VERSION: << parameters.python-version >>
@@ -306,7 +306,7 @@ jobs:
         type: string
       python-version:
         type: string
-        default: "3.9"
+        default: "3.10"
     environment:
       R_VERSION: << parameters.r-version >>
       PYTHON_VERSION: << parameters.python-version >>
@@ -439,7 +439,6 @@ jobs:
       - convert_image_to_soci_v2
 
 python-versions: &python-versions
-  - "3.9"
   - "3.10"
   - "3.11"
   - "3.12"
@@ -484,7 +483,7 @@ workflows:
             parameters:
               r-version: *r-versions
           requires:
-            - Python 3.9
+            - Python 3.10
       - build-and-push-ir:
           name: R << matrix.r-version >>
           matrix:
