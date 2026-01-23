@@ -66,7 +66,10 @@ rJava"
 RUN apt-get update \
   && apt-get install -y ${BUILDDEPS} \
   && R -e " \
-    options(Ncpus = 4); \
+    options( \
+      Ncpus = 4, \
+      HTTPUserAgent = sprintf('R/%s R (%s)', getRversion(), paste(getRversion(), R.version['platform'], R.version['arch'], R.version['os'])) \
+    ); \
     install.packages( \
       strsplit(Sys.getenv('R_PACKAGES'), '\\\\s+')[[1]], \
       repos = Sys.getenv('CRAN_REPO'), \
