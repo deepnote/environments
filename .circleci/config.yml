@@ -77,7 +77,7 @@ commands:
     steps:
       - run:
           name: Retag image and push SOCI v1 index
-          no_output_timeout: 30m
+          no_output_timeout: 60m
           command: |
             set -euxo pipefail
           
@@ -109,7 +109,7 @@ commands:
     steps:
       - run:
           name: Convert and push SOCI v2 image
-          no_output_timeout: 30m
+          no_output_timeout: 60m
           command: |
             set -euxo pipefail
           
@@ -228,7 +228,7 @@ jobs:
             } >> "$BASH_ENV"
       - run:
           name: Build and push python-datascience image
-          no_output_timeout: 30m
+          no_output_timeout: 60m
           command: |
             docker buildx build \
               --file=./python/datascience/Dockerfile.datascience \
@@ -317,7 +317,7 @@ jobs:
             } >> "$BASH_ENV"
       - run:
           name: Build and push ir image
-          no_output_timeout: 60m
+          no_output_timeout: 90m
           command: |
             docker buildx build \
               --file=./ir/ir-base/Dockerfile.ir \
@@ -365,7 +365,7 @@ jobs:
             } >> "$BASH_ENV"
       - run:
           name: Build and push ir with datascience libraries
-          no_output_timeout: 60m
+          no_output_timeout: 90m
           command: |
             docker buildx build \
               --file=./ir/ir-with-libs/Dockerfile.ir \
@@ -418,7 +418,7 @@ jobs:
             } >> "$BASH_ENV"
       - run:
           name: Build and push gpu legacy image
-          no_output_timeout: 30m
+          no_output_timeout: 60m
           command: |
             docker buildx build \
               --file=./gpu/Dockerfile.legacy \
@@ -465,7 +465,7 @@ jobs:
             } >> "$BASH_ENV"
       - run:
           name: Build and push gpu image
-          no_output_timeout: 30m
+          no_output_timeout: 60m
           command: |
             docker buildx build \
               --file=./gpu/Dockerfile \
