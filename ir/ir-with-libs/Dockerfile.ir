@@ -47,19 +47,35 @@ xfonts-base \
 xvfb \
 zlib1g-dev"
 
-RUN apt-get update && apt-get install -y ${BUILDDEPS} \
-  && \
-  # Install the R libraries
-  R -e "install.packages('tidyverse', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
-  R -e "install.packages('data.table', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
-  R -e "install.packages('RSQLite', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
-  R -e "install.packages('remotes', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
-  R -e "install.packages('reticulate', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
-  R -e "install.packages('igraph', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
-  R -e "install.packages('plotly', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
-  R -e "install.packages('rgl', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
-  R -e "install.packages('hdf5r', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
-  R -e "install.packages('rJava', repos='https://cloud.r-project.org', dependencies=TRUE)" && \
-  apt-get clean && \
-  apt-get remove --purge -y ${BUILDDEPS} && \
-	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Use Posit Package Manager for precompiled Linux binaries
+ENV CRAN_REPO="https://packagemanager.posit.co/cran/__linux__/bullseye/latest"
+
+# R packages to install
+ENV R_PACKAGES="\
+tidyverse \
+data.table \
+RSQLite \
+remotes \
+reticulate \
+igraph \
+plotly \
+rgl \
+hdf5r \
+rJava"
+
+RUN apt-get update \
+  && apt-get install -y ${BUILDDEPS} \
+  && R -e " \
+    options( \
+      Ncpus = 4, \
+      HTTPUserAgent = sprintf('R/%s R (%s)', getRversion(), paste(getRversion(), R.version['platform'], R.version['arch'], R.version['os'])) \
+    ); \
+    install.packages( \
+      strsplit(Sys.getenv('R_PACKAGES'), '\\\\s+')[[1]], \
+      repos = Sys.getenv('CRAN_REPO'), \
+      dependencies = TRUE \
+    ) \
+  " \
+  && apt-get clean \
+  && apt-get remove --purge -y ${BUILDDEPS} \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
