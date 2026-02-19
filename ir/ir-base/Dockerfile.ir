@@ -27,7 +27,7 @@ RUN python -m venv jupyter-env && \
 
 # Install IRkernel and configure it (using Posit Package Manager for faster binary installs)
 RUN . ./jupyter-env/bin/activate && \
-	R -e "install.packages('IRkernel', repos='https://packagemanager.posit.co/cran/__linux__/bullseye/latest')" && \
+	R -e "install.packages('IRkernel', repos='https://packagemanager.posit.co/cran/__linux__/bookworm/latest')" && \
 	R -e "IRkernel::installspec()"
 
 # Clean up unnecessary files to reduce the image size
