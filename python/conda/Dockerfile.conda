@@ -1,6 +1,7 @@
 ARG PYTHON_VERSION=3.10
 ARG CIRCLE_PULL_REQUEST
-FROM deepnote/python:base
+ARG BASE_REPOSITORY=deepnote/python
+FROM ${BASE_REPOSITORY}:base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \

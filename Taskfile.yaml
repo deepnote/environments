@@ -1,0 +1,72 @@
+version: "3"
+
+vars:
+  PYTHON_VERSION: "3.10"
+  REPOSITORY: "deepnote-local-python"
+
+tasks:
+  build:base:
+    desc: "Build base image"
+    cmds:
+      - |
+        docker build \
+          --file=./python/base/Dockerfile.base \
+          --tag={{.REPOSITORY}}:base \
+          --platform linux/amd64 \
+          --progress plain \
+          ./python/base
+
+  build:python:
+    desc: "Build python image"
+    requires:
+      vars:
+        - PYTHON_VERSION
+    deps:
+      - task: build:base
+    cmds:
+      - |
+        docker build \
+          --file=./python/python/Dockerfile.python{{.PYTHON_VERSION}} \
+          --tag={{.REPOSITORY}}:{{.PYTHON_VERSION}} \
+          --build-arg BASE_REPOSITORY={{.REPOSITORY}} \
+          --platform linux/amd64 \
+          --progress plain \
+          ./python/python
+
+  build:datascience:
+    desc: "Build datascience image"
+    requires:
+      vars:
+        - PYTHON_VERSION
+    deps:
+      - task: build:python
+        vars:
+          PYTHON_VERSION: "{{.PYTHON_VERSION}}"
+    cmds:
+      - |
+        docker build \
+          --file=./python/datascience/Dockerfile.datascience \
+          --tag={{.REPOSITORY}}:{{.PYTHON_VERSION}}-datascience \
+          --build-arg PYTHON_VERSION={{.PYTHON_VERSION}} \
+          --build-arg BASE_REPOSITORY={{.REPOSITORY}} \
+          --platform linux/amd64 \
+          --progress plain \
+          ./python/datascience
+
+  build:conda:
+    desc: "Build conda image"
+    requires:
+      vars:
+        - PYTHON_VERSION
+    deps:
+      - task: build:base
+    cmds:
+      - |
+        docker build \
+          --file=./python/conda/Dockerfile.conda \
+          --tag={{.REPOSITORY}}:{{.PYTHON_VERSION}}-conda \
+          --build-arg PYTHON_VERSION={{.PYTHON_VERSION}} \
+          --build-arg BASE_REPOSITORY={{.REPOSITORY}} \
+          --platform linux/amd64 \
+          --progress plain \
+          ./python/conda

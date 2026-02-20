@@ -1,6 +1,7 @@
 ARG PYTHON_VERSION=3.8
 ARG CIRCLE_PULL_REQUEST
-FROM deepnote/python:${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+ARG BASE_REPOSITORY=deepnote/python
+FROM ${BASE_REPOSITORY}:${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
 # Add the requirements files
 ADD requirements-3.11.txt /requirements-3.11.txt

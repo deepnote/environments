@@ -1,6 +1,6 @@
 ## Source of the image with list included dependencies!
-# https://github.com/docker-library/buildpack-deps/blob/master/debian/bullseye/Dockerfile
-FROM buildpack-deps:bullseye
+# https://github.com/docker-library/buildpack-deps/blob/master/debian/bookworm/Dockerfile
+FROM buildpack-deps:bookworm
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install OS dependencies

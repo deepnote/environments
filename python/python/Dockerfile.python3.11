@@ -1,10 +1,10 @@
-## WARNING: This image is plane copy of: 
-## https://github.com/docker-library/python/blob/7c8595e8e2b1c8bca0b6d9d146675b94c2a37ec7/3.11/bullseye/Dockerfile
-## This is temporary solution and we come with proper solution in the future.
-## Ticket: https://linear.app/deepnote/issue/PLA-3219/cleanup-build-pipeline-for-deepnote-python-images
+## Closely based on upstream:
+## https://github.com/docker-library/python/blob/master/3.11/bookworm/Dockerfile
+## Only change: FROM uses deepnote/python:base instead of buildpack-deps:bookworm
 
 ARG CIRCLE_PULL_REQUEST
-FROM deepnote/python:base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
+ARG BASE_REPOSITORY=deepnote/python
+FROM ${BASE_REPOSITORY}:base${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
 # ensure local python is preferred over distribution python
 ENV PATH /usr/local/bin:$PATH
@@ -25,11 +25,13 @@ RUN set -eux; \
 	rm -rf /var/lib/apt/lists/*
 
 ENV GPG_KEY A035C8C19219BA821ECEA86B64E628F8D684696D
-ENV PYTHON_VERSION 3.11.10
+ENV PYTHON_VERSION 3.11.14
+ENV PYTHON_SHA256 8d3ed8ec5c88c1c95f5e558612a725450d2452813ddad5e58fdb1a53b1209b78
 
 RUN set -eux; \
 	\
 	wget -O python.tar.xz "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz"; \
+	echo "$PYTHON_SHA256 *python.tar.xz" | sha256sum -c -; \
 	wget -O python.tar.xz.asc "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc"; \
 	GNUPGHOME="$(mktemp -d)"; export GNUPGHOME; \
 	gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$GPG_KEY"; \
@@ -48,8 +50,7 @@ RUN set -eux; \
 		--enable-optimizations \
 		--enable-option-checking=fatal \
 		--enable-shared \
-		--with-lto \
-		--with-system-expat \
+		$(test "${gnuArch%%-*}" != 'riscv64' && echo '--with-lto') \
 		--with-ensurepip \
 	; \
 	nproc="$(nproc)"; \
@@ -58,15 +59,13 @@ RUN set -eux; \
 	make -j "$nproc" \
 		"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}" \
 		"LDFLAGS=${LDFLAGS:-}" \
-		"PROFILE_TASK=${PROFILE_TASK:-}" \
 	; \
 # https://github.com/docker-library/python/issues/784
 # prevent accidental usage of a system installed libpython of the same version
 	rm python; \
 	make -j "$nproc" \
 		"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}" \
-		"LDFLAGS=${LDFLAGS:--Wl},-rpath='\$\$ORIGIN/../lib'" \
-		"PROFILE_TASK=${PROFILE_TASK:-}" \
+		"LDFLAGS=${LDFLAGS:-} -Wl,-rpath='\$\$ORIGIN/../lib'" \
 		python \
 	; \
 	make install; \
@@ -96,8 +95,9 @@ RUN set -eux; \
 		--disable-pip-version-check \
 		--no-cache-dir \
 		--no-compile \
-		'setuptools==65.5.1' \
-		wheel \
+		'setuptools==79.0.1' \
+		# https://github.com/docker-library/python/issues/1023
+		'wheel<0.46' \
 	; \
 	pip3 --version
 
@@ -110,3 +110,4 @@ RUN set -eux; \
 		ln -svT "$src" "/usr/local/bin/$dst"; \
 	done
 
+CMD ["python3"]
