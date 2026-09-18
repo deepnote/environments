@@ -7,12 +7,17 @@ FROM ${BASE_REPOSITORY}:${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PUL
 ADD requirements-3.11.txt /requirements-3.11.txt
 ADD requirements-3.12.txt /requirements-3.12.txt
 ADD requirements-3.13.txt /requirements-3.13.txt
+ADD requirements-3.14.txt /requirements-3.14.txt
 ADD requirements-below-3.11.txt /requirements-below-3.11.txt
 
 #Determine the Python version and set the version-specifications file
 ARG PYTHON_VERSION
 
-RUN if [ "$(printf '%s\n' "$PYTHON_VERSION" "3.13" | sort -V | head -n1)" = "3.13" ]; then \
+RUN if [ "$(printf '%s\n' "$PYTHON_VERSION" "3.14" | sort -V | head -n1)" = "3.14" ]; then \
+  mv /requirements-3.14.txt /requirements.txt; \
+  mkdir -p ~/.keras; \
+  printf '%s\n' '{"backend": "torch"}' > ~/.keras/keras.json \
+  ; elif [ "$(printf '%s\n' "$PYTHON_VERSION" "3.13" | sort -V | head -n1)" = "3.13" ]; then \
   mv /requirements-3.13.txt /requirements.txt \
   ; elif [ "$(printf '%s\n' "$PYTHON_VERSION" "3.12" | sort -V | head -n1)" = "3.12" ]; then \
   mv /requirements-3.12.txt /requirements.txt \
