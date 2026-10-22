@@ -3,9 +3,12 @@ FROM tensorflow/tensorflow:${TF_VERSION}-gpu
 
 # Install OS dependencies and apply Ubuntu updates released after the base image.
 # The upgrade reads only sources.list, so CUDA packages from the NVIDIA repository keep their versions.
+# Upgrading python3-minimal resets /usr/bin/python3 to the Ubuntu Python, so the image's link is restored.
 RUN set -e && \
-  apt-get update \
+  python3_target="$(readlink /usr/bin/python3)" \
+  && apt-get update \
   && apt-get upgrade -yq -o Dir::Etc::SourceParts=- \
+  && ln -sf "$python3_target" /usr/bin/python3 \
   && apt-get install -yq --no-install-recommends \
   build-essential \
   bzip2 \
