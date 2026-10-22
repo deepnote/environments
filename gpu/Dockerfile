@@ -1,9 +1,11 @@
 ARG TF_VERSION=2.17.0
 FROM tensorflow/tensorflow:${TF_VERSION}-gpu
 
-# Install OS dependencies
+# Install OS dependencies and apply Ubuntu updates released after the base image.
+# The upgrade reads only sources.list, so CUDA packages from the NVIDIA repository keep their versions.
 RUN set -e && \
   apt-get update \
+  && apt-get upgrade -yq -o Dir::Etc::SourceParts=- \
   && apt-get install -yq --no-install-recommends \
   build-essential \
   bzip2 \
@@ -51,5 +53,5 @@ RUN set -ex && \
     && rm -rf /var/lib/apt/lists/*; \
   fi
 
-# Prevent breaking changes with numpy
-RUN pip install --no-cache-dir numpy -c https://tk.deepnote.com/constraints3.11.txt
+# Prevent breaking changes with numpy, and replace the outdated certifi bundle from the TensorFlow image
+RUN pip install --no-cache-dir numpy "certifi>=2026.10.19" -c https://tk.deepnote.com/constraints3.11.txt
