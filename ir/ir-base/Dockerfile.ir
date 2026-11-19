@@ -6,7 +6,7 @@ ARG BASE_REPOSITORY=deepnote/python
 FROM ${BASE_REPOSITORY}:${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
 # Set environment variables
-ARG R_VERSION=4.4.0
+ARG R_VERSION=4.4.3
 # Use the R version specified by the build argument
 ENV R_VERSION="${R_VERSION}" \
 	R_HOME="/usr/local/lib/R" \

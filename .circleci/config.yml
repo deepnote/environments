@@ -492,8 +492,8 @@ python-versions: &python-versions
   - "3.14"
 
 r-versions: &r-versions
-  - "4.0.4"
-  - "4.2.0"
+  - "4.0.5"
+  - "4.2.3"
 
 python-310-r-versions: &python310-r-versions
   - "4.4.3"
