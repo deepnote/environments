@@ -48,7 +48,7 @@ xvfb \
 zlib1g-dev"
 
 # Use Posit Package Manager for precompiled Linux binaries
-ENV CRAN_REPO="https://packagemanager.posit.co/cran/__linux__/bullseye/latest"
+ENV CRAN_REPO="https://packagemanager.posit.co/cran/__linux__/trixie/latest"
 
 # R packages to install
 ENV R_PACKAGES="\
