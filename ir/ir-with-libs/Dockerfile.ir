@@ -1,4 +1,4 @@
-ARG R_VERSION=4.2.0
+ARG R_VERSION=4.2.3
 ARG CIRCLE_PULL_REQUEST
 
 FROM deepnote/ir:${R_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
@@ -48,7 +48,17 @@ xvfb \
 zlib1g-dev"
 
 # Use Posit Package Manager for precompiled Linux binaries
-ENV CRAN_REPO="https://packagemanager.posit.co/cran/__linux__/bullseye/latest"
+ENV CRAN_REPO="https://packagemanager.posit.co/cran/__linux__/trixie/latest"
+
+# Shared libraries for the precompiled sf (gdal, geos, proj), igraph (glpk), rgl (GLU) and hdf5r (hdf5)
+ENV RUNTIME_LIBS="\
+libgdal36 \
+libgeos-c1t64 \
+libglpk40 \
+libglu1-mesa \
+libhdf5-310 \
+libhdf5-hl-310 \
+libproj25"
 
 # R packages to install
 ENV R_PACKAGES="\
@@ -64,7 +74,7 @@ hdf5r \
 rJava"
 
 RUN apt-get update \
-  && apt-get install -y ${BUILDDEPS} \
+  && apt-get install -y ${BUILDDEPS} ${RUNTIME_LIBS} \
   && R -e " \
     options( \
       Ncpus = 4, \
@@ -79,3 +89,10 @@ RUN apt-get update \
   && apt-get clean \
   && apt-get remove --purge -y ${BUILDDEPS} \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Load every installed package in its own R process to catch missing shared libraries
+RUN failed="" \
+  && for p in $(Rscript -e "cat(rownames(installed.packages()), sep = '\n')"); do \
+    Rscript -e "suppressPackageStartupMessages(loadNamespace('$p'))" > /dev/null 2>&1 || failed="$failed $p"; \
+  done \
+  && if [ -n "$failed" ]; then echo "Packages that fail to load:$failed"; exit 1; fi

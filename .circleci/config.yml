@@ -324,6 +324,7 @@ jobs:
               --tag=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX} \
               --build-arg R_VERSION=${R_VERSION} \
               --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+              --build-arg CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}-buildcache \
               --cache-from type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache \
               --cache-to type=registry,ref=docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}-buildcache,mode=max,image-manifest=true,oci-mediatypes=true \
@@ -491,8 +492,8 @@ python-versions: &python-versions
   - "3.14"
 
 r-versions: &r-versions
-  - "4.0.4"
-  - "4.2.0"
+  - "4.0.5"
+  - "4.2.3"
 
 python-310-r-versions: &python310-r-versions
   - "4.4.3"

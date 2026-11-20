@@ -1,6 +1,6 @@
 ## Closely based on upstream:
-## https://github.com/docker-library/python/blob/master/3.11/bookworm/Dockerfile
-## Only change: FROM uses deepnote/python:base instead of buildpack-deps:bookworm
+## https://github.com/docker-library/python/blob/master/3.11/trixie/Dockerfile
+## Only change: FROM uses deepnote/python:base instead of buildpack-deps:trixie
 
 ARG CIRCLE_PULL_REQUEST
 ARG BASE_REPOSITORY=deepnote/python
@@ -22,7 +22,7 @@ RUN set -eux; \
 		tk-dev \
 		uuid-dev \
 	; \
-	rm -rf /var/lib/apt/lists/*
+	apt-get dist-clean
 
 ENV GPG_KEY A035C8C19219BA821ECEA86B64E628F8D684696D
 ENV PYTHON_VERSION 3.11.18
