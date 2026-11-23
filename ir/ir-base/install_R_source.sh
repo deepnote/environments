@@ -118,6 +118,11 @@ fi
 tar xzf "R.tar.gz"
 cd R-*/
 
+## R before 4.3.0 rejects libcurl 8 in configure, even though libcurl 8 keeps the libcurl 7 API and ABI.
+## This is the configure change from R 4.3.0 and a no-op for newer versions.
+## https://github.com/wch/r-source/commit/da6638896413bcbb5970b2335b92582853f94e3c
+sed -i -z 's/#if LIBCURL_VERSION_MAJOR > 7\n  exit(1)/#if LIBCURL_VERSION_MAJOR > 7\n  exit(0)/' configure
+
 R_PAPERSIZE=letter \
     R_BATCHSAVE="--no-save --no-restore" \
     R_BROWSER=xdg-open \

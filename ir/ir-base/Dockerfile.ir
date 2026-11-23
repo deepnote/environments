@@ -1,10 +1,12 @@
 # Define build arguments for Python and R versions
 ARG PYTHON_VERSION=3.10
+ARG CIRCLE_PULL_REQUEST
+ARG BASE_REPOSITORY=deepnote/python
 # Use the specified Python version as the base image
-FROM deepnote/python:${PYTHON_VERSION}
+FROM ${BASE_REPOSITORY}:${PYTHON_VERSION}${CIRCLE_PULL_REQUEST:+-ra-${CIRCLE_PULL_REQUEST##*/}}
 
 # Set environment variables
-ARG R_VERSION=4.4.0
+ARG R_VERSION=4.4.3
 # Use the R version specified by the build argument
 ENV R_VERSION="${R_VERSION}" \
 	R_HOME="/usr/local/lib/R" \
@@ -29,7 +31,7 @@ RUN python -m venv jupyter-env && \
 # glue 1.8.1 requires R >= 4.1; install 1.8.0 for older R versions.
 RUN . ./jupyter-env/bin/activate && \
 	R -e "if (getRversion() < '4.1') install.packages('https://cran.r-project.org/src/contrib/Archive/glue/glue_1.8.0.tar.gz', repos=NULL, type='source')" && \
-	R -e "install.packages('IRkernel', repos='https://packagemanager.posit.co/cran/__linux__/bookworm/latest')" && \
+	R -e "install.packages('IRkernel', repos='https://packagemanager.posit.co/cran/__linux__/trixie/latest')" && \
 	R -e "IRkernel::installspec()"
 
 # Clean up unnecessary files to reduce the image size

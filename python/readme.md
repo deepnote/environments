@@ -8,7 +8,7 @@
 The Python 3.14 datascience image uses the PyTorch backend for Keras and does not include TensorFlow.
 
 # What is Deepnote Python?
-Deepnote Python is a set of Docker images tailored for use in the Deepnote platform. These images are based on the official [Python Docker images](https://hub.docker.com/_/python) and include additional binaries and configurations to enhance the user experience within Deepnote. They are designed to simplify development workflows, especially for data science projects, by providing pre-configured environments that are ready to use.
+Deepnote Python is a set of Docker images tailored for use in the Deepnote platform. These images are based on Debian 13 (trixie) and the official [Python Docker images](https://hub.docker.com/_/python), and include additional binaries and configurations to enhance the user experience within Deepnote. They are designed to simplify development workflows, especially for data science projects, by providing pre-configured environments that are ready to use.
 
 # How to Use This Image
 
