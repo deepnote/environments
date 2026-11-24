@@ -163,6 +163,9 @@ commands:
         type: string
       convert-flags:
         type: string
+      prefetch-patterns:
+        type: string
+        default: ""
     steps:
       - run:
           name: Convert and push Nydus v2 << parameters.variant >> image
@@ -172,12 +175,25 @@ commands:
 
             SRC_IMAGE="docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}"
             DST_IMAGE="${SRC_IMAGE}-nydusv2-<< parameters.variant >>"
+            PREFETCH_PATTERNS="<< parameters.prefetch-patterns >>"
             WORK_DIR="$(mktemp -d)"
             mkdir -p "${WORK_DIR}/convert" "${WORK_DIR}/check"
 
             echo "Source image:   ${SRC_IMAGE}"
             echo "Nydus v2 image: ${DST_IMAGE}"
             echo "Docker config:  ${DOCKER_CONFIG}"
+
+            # Without a patterns file, nydusify prefetches the whole image ("/")
+            PREFETCH_ARGS=()
+            PREFETCH_INPUT=/dev/null
+            if [ -n "$PREFETCH_PATTERNS" ]; then
+              PREFETCH_ARGS=(--prefetch-patterns)
+              PREFETCH_INPUT="${WORK_DIR}/prefetch-patterns"
+              grep -v -e '^#' -e '^$' "$PREFETCH_PATTERNS" \
+                | sed "s/@PYTHON_VERSION@/${PYTHON_VERSION}/g" \
+                > "$PREFETCH_INPUT"
+              echo "Prefetch patterns: $(wc -l < "$PREFETCH_INPUT") from ${PREFETCH_PATTERNS}"
+            fi
 
             echo "Converting image to Nydus v2 (<< parameters.variant >>) and pushing it..."
             nydusify convert \
@@ -186,7 +202,9 @@ commands:
               --platform linux/amd64 \
               --oci \
               --work-dir "${WORK_DIR}/convert" \
-              << parameters.convert-flags >>
+              "${PREFETCH_ARGS[@]}" \
+              << parameters.convert-flags >> \
+              < "$PREFETCH_INPUT"
 
             echo "Checking manifest and bootstrap of ${DST_IMAGE}..."
             nydusify check \
@@ -196,16 +214,23 @@ commands:
             rm -rf "$WORK_DIR"
 
   convert_and_push_nydus_v2:
+    parameters:
+      prefetch-patterns:
+        type: string
+        default: ""
     steps:
       - convert_and_push_nydus_v2_variant:
           variant: zran
           convert-flags: --oci-ref
+          prefetch-patterns: << parameters.prefetch-patterns >>
       - convert_and_push_nydus_v2_variant:
           variant: rafsv5
           convert-flags: --fs-version 5
+          prefetch-patterns: << parameters.prefetch-patterns >>
       - convert_and_push_nydus_v2_variant:
           variant: rafsv6
           convert-flags: --fs-version 6
+          prefetch-patterns: << parameters.prefetch-patterns >>
 
 jobs:
   build-and-push-base:
@@ -275,7 +300,8 @@ jobs:
               ./python/python
       - retag_soci_v1
       - convert_and_push_soci_v2
-      - convert_and_push_nydus_v2
+      - convert_and_push_nydus_v2:
+          prefetch-patterns: python/nydus-prefetch.txt
 
   build-and-push-python-datascience:
     machine:
@@ -319,7 +345,8 @@ jobs:
               ./python/datascience
       - retag_soci_v1
       - convert_and_push_soci_v2
-      - convert_and_push_nydus_v2
+      - convert_and_push_nydus_v2:
+          prefetch-patterns: python/nydus-prefetch.txt
 
   build-and-push-python-conda:
     machine:

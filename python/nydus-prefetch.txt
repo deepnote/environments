@@ -1,0 +1,33 @@
+# Nydus prefetch patterns for the python and datascience images, in priority order.
+# A directory covers everything below it. Paths missing from an image are skipped.
+# @PYTHON_VERSION@ is replaced with the image's Python version, e.g. 3.12.
+#
+# Derived from the files the Deepnote toolkit opens while it starts Jupyter and a kernel.
+
+# Interpreter and standard library
+/usr/bin/bash
+/usr/local/bin/python@PYTHON_VERSION@
+/usr/local/lib/libpython@PYTHON_VERSION@.so.1.0
+/usr/local/lib/python@PYTHON_VERSION@
+
+# Virtual environment of the datascience image
+/root/venv/pyvenv.cfg
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/distutils-precedence.pth
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/_distutils_hack
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/platformdirs
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/traitlets
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/dateutil
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/attr
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/attrs
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/idna
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/yaml
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/jinja2
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/markupsafe
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/packaging
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/jedi
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/parso
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/pip
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/ptyprocess
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/IPython
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/pygments
+/root/venv/lib/python@PYTHON_VERSION@/site-packages/psutil
