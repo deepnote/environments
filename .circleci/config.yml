@@ -6,6 +6,7 @@ orbs:
 tool-versions: &tool-versions
   NERDCTL_VERSION: "2.2.0"
   SOCI_VERSION: "0.11.1"
+  NYDUS_VERSION: "2.4.6"
 
 commands:
   setup_buildkit_builder:
@@ -65,6 +66,27 @@ commands:
             rm "${SOCI_TARBALL}" "${SOCI_TARBALL}.sha256sum"
           
             soci --help
+      - run:
+          name: Setup Nydus
+          environment:
+            <<: *tool-versions
+          command: |
+            set -euxo pipefail
+
+            NYDUS_TARBALL="nydus-static-v${NYDUS_VERSION}-linux-amd64.tgz"
+            NYDUS_BASE_URL="https://github.com/dragonflyoss/nydus/releases/download/v${NYDUS_VERSION}"
+
+            curl -L -o "${NYDUS_TARBALL}" "${NYDUS_BASE_URL}/${NYDUS_TARBALL}"
+
+            curl -L -o "${NYDUS_TARBALL}.sha256sum" "${NYDUS_BASE_URL}/${NYDUS_TARBALL}.sha256sum"
+            sha256sum -c "${NYDUS_TARBALL}.sha256sum"
+
+            sudo tar -C /usr/local/bin --strip-components=1 -xzvf "${NYDUS_TARBALL}" \
+              nydus-static/nydusify nydus-static/nydus-image
+            rm "${NYDUS_TARBALL}" "${NYDUS_TARBALL}.sha256sum"
+
+            nydusify --version
+            nydus-image --version
       - run:
           # containerd can use faster gzip implementations (pigz, igzip)
           name: Setup compression tools
@@ -135,6 +157,56 @@ commands:
             echo "Listing SOCI indexes..."
             sudo soci index list
 
+  convert_and_push_nydus_v2_variant:
+    parameters:
+      variant:
+        type: string
+      convert-flags:
+        type: string
+    steps:
+      - run:
+          name: Convert and push Nydus v2 << parameters.variant >> image
+          no_output_timeout: 60m
+          command: |
+            set -euxo pipefail
+
+            SRC_IMAGE="docker.io/${REPOSITORY}:${TAG}${TAG_SUFFIX}"
+            DST_IMAGE="${SRC_IMAGE}-nydusv2-<< parameters.variant >>"
+            WORK_DIR="$(mktemp -d)"
+            mkdir -p "${WORK_DIR}/convert" "${WORK_DIR}/check"
+
+            echo "Source image:   ${SRC_IMAGE}"
+            echo "Nydus v2 image: ${DST_IMAGE}"
+            echo "Docker config:  ${DOCKER_CONFIG}"
+
+            echo "Converting image to Nydus v2 (<< parameters.variant >>) and pushing it..."
+            nydusify convert \
+              --source "$SRC_IMAGE" \
+              --target "$DST_IMAGE" \
+              --platform linux/amd64 \
+              --oci \
+              --work-dir "${WORK_DIR}/convert" \
+              << parameters.convert-flags >>
+
+            echo "Checking manifest and bootstrap of ${DST_IMAGE}..."
+            nydusify check \
+              --target "$DST_IMAGE" \
+              --work-dir "${WORK_DIR}/check"
+
+            rm -rf "$WORK_DIR"
+
+  convert_and_push_nydus_v2:
+    steps:
+      - convert_and_push_nydus_v2_variant:
+          variant: zran
+          convert-flags: --oci-ref
+      - convert_and_push_nydus_v2_variant:
+          variant: rafsv5
+          convert-flags: --fs-version 5
+      - convert_and_push_nydus_v2_variant:
+          variant: rafsv6
+          convert-flags: --fs-version 6
+
 jobs:
   build-and-push-base:
     machine:
@@ -203,6 +275,7 @@ jobs:
               ./python/python
       - retag_soci_v1
       - convert_and_push_soci_v2
+      - convert_and_push_nydus_v2
 
   build-and-push-python-datascience:
     machine:
@@ -246,6 +319,7 @@ jobs:
               ./python/datascience
       - retag_soci_v1
       - convert_and_push_soci_v2
+      - convert_and_push_nydus_v2
 
   build-and-push-python-conda:
     machine:
@@ -288,6 +362,7 @@ jobs:
               ./python/conda
       - retag_soci_v1
       - convert_and_push_soci_v2
+      - convert_and_push_nydus_v2
 
   build-and-push-ir:
     machine:
@@ -336,6 +411,7 @@ jobs:
               ./ir/ir-base
       - retag_soci_v1
       - convert_and_push_soci_v2
+      - convert_and_push_nydus_v2
 
   build-and-push-ir-with-libs:
     machine:
@@ -384,6 +460,7 @@ jobs:
               ./ir/ir-with-libs
       - retag_soci_v1
       - convert_and_push_soci_v2
+      - convert_and_push_nydus_v2
 
   build-and-push-gpu-legacy:
     machine:
@@ -438,6 +515,7 @@ jobs:
               ./gpu
       - retag_soci_v1
       - convert_and_push_soci_v2
+      - convert_and_push_nydus_v2
 
   build-and-push-gpu:
     machine:
@@ -483,6 +561,7 @@ jobs:
               ./gpu
       - retag_soci_v1
       - convert_and_push_soci_v2
+      - convert_and_push_nydus_v2
 
 python-versions: &python-versions
   - "3.10"
